@@ -1,0 +1,280 @@
+<main class="game-page">
+  <section class="camp">
+    <header class="camp__header">
+      <a routerLink="/" class="camp__back">Volver</a>
+      <div class="camp__meta">
+        <p>Día {{ game()?.day ?? '-' }}</p>
+        <p>Clima {{ weatherLabel() }}</p>
+        <p>Dificultad {{ difficultyLabel() }}</p>
+        <p>Acciones {{ game()?.actionsRemaining ?? '-' }}</p>
+      </div>
+    </header>
+
+    @if (loadStatus() === 'loading') {
+      <p class="camp__status">Cargando campamento...</p>
+    }
+
+    @if (loadStatus() === 'error') {
+      <div class="panel">
+        <h1>Partida no encontrada</h1>
+        <p>No se pudo cargar el estado de la isla.</p>
+      </div>
+    }
+
+    @if (loadStatus() === 'ready') {
+      @if (game()?.isVictory) {
+        <section class="victory">
+          <p>RESCATE</p>
+          <h1>Has sido rescatado</h1>
+        </section>
+      } @else if (game()?.isGameOver) {
+        <section class="game-over">
+          <p>GAME OVER</p>
+          <h1>La isla ha ganado</h1>
+        </section>
+      }
+
+      <div class="camp__layout">
+        <section class="camp__main">
+          <div class="camp__title">
+            <p class="camp__eyebrow">Refugio provisional</p>
+            <h1>Campamento</h1>
+            <p class="camp__intro">Has despertado en una isla desconocida. Necesitas sobrevivir.</p>
+          </div>
+
+          <section class="panel log" aria-labelledby="log-title">
+            <h2 id="log-title">Registro del campamento</h2>
+            <div class="log__entries">
+              <p>
+                <span>Último evento importante</span>
+                {{ lastActionMessage() || 'El campamento espera tu siguiente decisión.' }}
+              </p>
+              @for (eventMessage of lastEventMessages(); track eventMessage) {
+                <p>
+                  <span>Evento nocturno</span>
+                  {{ eventMessage }}
+                </p>
+              }
+            </div>
+          </section>
+
+          <section class="panel camp-visual" aria-labelledby="camp-visual-title">
+            <h2 id="camp-visual-title">Campamento</h2>
+            <div class="camp-structures">
+              @for (structure of structures(); track structure.type) {
+                <article class="camp-structure" [class.built]="structure.isBuilt">
+                  <span class="camp-structure__mark">{{ structureMark(structure.type) }}</span>
+                  <div>
+                    <h3>{{ structure.name }}</h3>
+                    <small>{{ structure.isBuilt ? 'Construida' : 'Bloqueada' }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="stats-title">
+            <h2 id="stats-title">Estado principal</h2>
+            <div class="stats">
+              @for (stat of stats(); track stat.label) {
+                <div class="stat">
+                  <div class="stat__header">
+                    <span>{{ stat.label }}</span>
+                    <strong>{{ stat.value }}</strong>
+                  </div>
+                  <div class="stat__track" aria-hidden="true">
+                    <span class="stat__fill stat__fill--{{ stat.className }}" [style.width.%]="stat.value"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="actions-title">
+            <div class="panel__title">
+              <h2 id="actions-title">Acciones del día</h2>
+              <span>{{ game()?.actionsRemaining ?? 0 }} restantes</span>
+            </div>
+            <div class="actions">
+              @for (dailyAction of dailyActions(); track dailyAction.action) {
+                <button
+                  type="button"
+                  class="action-button"
+                  [disabled]="isPerformingAction() || shouldEndDay() || game()?.isGameOver || game()?.isVictory"
+                  (click)="performAction(dailyAction)"
+                >
+                  {{ dailyAction.label }}
+                </button>
+              }
+            </div>
+            <div class="explore-zones" aria-label="Zonas para explorar">
+              @for (zone of zones(); track zone.type) {
+                <button
+                  type="button"
+                  class="explore-zone"
+                  [class.active]="selectedExploreZone() === zone.type"
+                  [disabled]="!zone.isDiscovered || isPerformingAction() || shouldEndDay() || game()?.isGameOver || game()?.isVictory"
+                  (click)="selectExploreZone(zone.type)"
+                >
+                  <span>{{ zone.name }}</span>
+                  <small>{{ zone.isDiscovered ? 'Disponible' : 'Bloqueada' }}</small>
+                </button>
+              }
+            </div>
+            @if (actionError()) {
+              <p class="error">{{ actionError() }}</p>
+            }
+            <button
+              type="button"
+              class="end-day action-end-day"
+              [disabled]="!shouldEndDay() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory"
+              (click)="endDay()"
+            >
+              Terminar día
+            </button>
+          </section>
+
+          <section class="panel rescue" aria-labelledby="rescue-title">
+            <h2 id="rescue-title">Rescate</h2>
+            <p>{{ rescueStatus().text }}</p>
+          </section>
+
+          <section class="panel" aria-labelledby="map-title">
+            <h2 id="map-title">Mapa de la isla</h2>
+            <div class="zones">
+              @for (zone of zones(); track zone.type) {
+                <article class="zone-card" [class.discovered]="zone.isDiscovered">
+                  <div class="zone-card__header">
+                    <h3>{{ zone.name }}</h3>
+                    <span>{{ zone.isDiscovered ? 'Descubierta' : 'No descubierta' }}</span>
+                  </div>
+                  @if (zone.isDiscovered) {
+                    <p>{{ zone.effect }}</p>
+                    <small>{{ zoneBenefit(zone.type) }}</small>
+                  } @else {
+                    <p>Explora otras zonas para descubrirla.</p>
+                  }
+                </article>
+              }
+            </div>
+          </section>
+        </section>
+
+        <aside class="panel side-panel">
+          <div class="tabs" role="tablist" aria-label="Paneles del campamento">
+            <button type="button" [class.active]="activeTab() === 'inventory'" (click)="selectTab('inventory')">
+              Inventario
+            </button>
+            <button type="button" [class.active]="activeTab() === 'build'" (click)="selectTab('build')">
+              Construcción
+            </button>
+            <button type="button" [class.active]="activeTab() === 'survival'" (click)="selectTab('survival')">
+              Supervivencia
+            </button>
+            <button type="button" [class.active]="activeTab() === 'diary'" (click)="selectTab('diary')">
+              Diario
+            </button>
+          </div>
+
+          @if (activeTab() === 'inventory') {
+            <div class="inventory">
+              @for (resource of inventory(); track resource.type) {
+                <div class="resource">
+                  <span>{{ resource.label }}</span>
+                  <strong>{{ resource.quantity }}</strong>
+                </div>
+              }
+            </div>
+          }
+
+          @if (activeTab() === 'build') {
+            <div class="build-list">
+              @for (structure of structures(); track structure.type) {
+                <article class="build-card" [class.built]="structure.isBuilt">
+                  <div>
+                    <h3>{{ structure.name }}</h3>
+                    <span class="build-card__status">{{ structure.isBuilt ? 'Construido' : 'No construido' }}</span>
+                    <p>{{ structure.description }}</p>
+                    <small class="build-card__effect">{{ structure.effect }}</small>
+                    @if (structure.requirement) {
+                      <small class="build-card__requirement">{{ structure.requirement }}</small>
+                    }
+                    <small>Coste: {{ structure.costText }}</small>
+                  </div>
+                  <button
+                    type="button"
+                    [disabled]="structure.isBuilt || !structure.canBuild || isBuilding() || game()?.isGameOver || game()?.isVictory"
+                    (click)="build(structure)"
+                  >
+                    {{ structure.isBuilt ? 'Hecho' : 'Construir' }}
+                  </button>
+                </article>
+              }
+              @if (buildError()) {
+                <p class="error">{{ buildError() }}</p>
+              }
+            </div>
+          }
+
+          @if (activeTab() === 'survival') {
+            <div class="survival">
+              <button type="button" [disabled]="!canEat() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eat()">
+                Comer
+              </button>
+              <button type="button" [disabled]="!canDrink() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="drink()">
+                Beber
+              </button>
+              @if (canEatCookedFish()) {
+                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eatCookedFish()">
+                  Comer pescado
+                </button>
+              }
+              @if (canEatCoconut()) {
+                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eatCoconut()">
+                  Consumir coco
+                </button>
+              }
+              @if (canCookFish()) {
+                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="cookFish()">
+                  Cocinar pescado
+                </button>
+              }
+              @if (canFilterWater()) {
+                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="filterWater()">
+                  Filtrar agua
+                </button>
+              }
+              @if (survivalError()) {
+                <p class="error">{{ survivalError() }}</p>
+              }
+            </div>
+          }
+
+          @if (activeTab() === 'diary') {
+            <div class="diary">
+              <h2>Diario de supervivencia</h2>
+              @if (diaryGroups().length === 0) {
+                <p class="diary__empty">Aún no hay eventos registrados.</p>
+              }
+              @for (group of diaryGroups(); track group.day) {
+                <section class="diary-day">
+                  <h3>Día {{ group.day }}</h3>
+                  <ul>
+                    @for (event of group.events; track event.id) {
+                      <li>{{ event.message }}</li>
+                    }
+                  </ul>
+                </section>
+              }
+              @if (canShowMoreDiary()) {
+                <button type="button" class="diary__more" (click)="showMoreDiary()">
+                  Ver más
+                </button>
+              }
+            </div>
+          }
+        </aside>
+      </div>
+    }
+  </section>
+</main>

@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id             String          @id @default(uuid())
+  day            Int             @default(1)
+  health         Int             @default(100)
+  hunger         Int             @default(80)
+  thirst         Int             @default(80)
+  energy         Int             @default(100)
+  sanity         Int             @default(100)
+  weather        String          @default("SUNNY")
+  difficulty     String          @default("NORMAL")
+  rescueProgress Int             @default(0)
+  actionsRemaining Int           @default(2)
+  isGameOver     Boolean         @default(false)
+  isVictory      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  inventoryItems InventoryItem[]
+  builtStructures BuiltStructure[]
+  discoveredZones DiscoveredZone[]
+  eventLogs      EventLog[]
+}
+
+model InventoryItem {
+  id        String   @id @default(uuid())
+  gameId    String
+  type      String
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, type])
+}
+
+model BuiltStructure {
+  id        String   @id @default(uuid())
+  gameId    String
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, type])
+}
+
+model DiscoveredZone {
+  id           String   @id @default(uuid())
+  gameId       String
+  zone         String
+  discoveredAt DateTime @default(now())
+  game         Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, zone])
+}
+
+model EventLog {
+  id        String   @id @default(uuid())
+  gameId    String
+  day       Int
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,543 @@
+:host {
+  display: block;
+}
+
+.game-page {
+  min-height: 100vh;
+  color: #f7f2e8;
+  background:
+    linear-gradient(rgba(5, 14, 12, 0.74), rgba(5, 14, 12, 0.92)),
+    radial-gradient(circle at 78% 18%, rgba(242, 196, 109, 0.16), transparent 24rem),
+    linear-gradient(140deg, #07130f 0%, #15211b 50%, #2a261a 100%);
+}
+
+.camp {
+  width: min(100%, 86rem);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.camp__header,
+.camp__meta,
+.panel__title,
+.stat__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.camp__header {
+  margin-bottom: 1rem;
+}
+
+.camp__back {
+  color: #d7c7a7;
+  text-decoration: none;
+}
+
+.camp__meta {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.camp__meta p,
+.panel__title span {
+  margin: 0;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #08130f;
+  background: #f2c46d;
+  font-weight: 900;
+}
+
+.camp__meta p + p {
+  color: #f2c46d;
+  border: 1px solid rgba(242, 196, 109, 0.28);
+  background: rgba(242, 196, 109, 0.1);
+}
+
+.camp__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(22rem, 0.85fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.camp__main {
+  display: grid;
+  gap: 1rem;
+}
+
+.camp__eyebrow {
+  margin: 0;
+  color: #8fd3bd;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: #fff8ec;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  line-height: 0.96;
+}
+
+h2 {
+  font-size: 1.15rem;
+}
+
+.camp__intro,
+.log p,
+.build-card p {
+  margin: 0;
+  color: #d7c7a7;
+  line-height: 1.55;
+}
+
+.panel,
+.victory,
+.game-over {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 0.95rem;
+  background: rgba(8, 19, 15, 0.78);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.22);
+}
+
+.victory,
+.game-over {
+  margin-bottom: 1rem;
+}
+
+.victory {
+  border-color: rgba(143, 211, 189, 0.48);
+  background: rgba(20, 83, 65, 0.36);
+}
+
+.victory p {
+  margin: 0 0 0.25rem;
+  color: #8fd3bd;
+  font-weight: 900;
+}
+
+.game-over {
+  border-color: rgba(251, 113, 133, 0.42);
+  background: rgba(127, 29, 29, 0.36);
+}
+
+.game-over p {
+  margin: 0 0 0.25rem;
+  color: #fb7185;
+  font-weight: 900;
+}
+
+.stats,
+.actions,
+.inventory,
+.build-list,
+.survival,
+.zones,
+.camp-structures {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.actions,
+.inventory,
+.zones {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.camp-structures {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.camp-structure {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  padding: 0.55rem;
+  background: rgba(255, 255, 255, 0.035);
+  opacity: 0.52;
+  filter: grayscale(0.8);
+}
+
+.camp-structure.built {
+  border-color: rgba(143, 211, 189, 0.42);
+  background: rgba(143, 211, 189, 0.08);
+  opacity: 1;
+  filter: none;
+}
+
+.camp-structure__mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  color: #08130f;
+  background: #d7c7a7;
+  font-weight: 950;
+}
+
+.camp-structure.built .camp-structure__mark {
+  background: #8fd3bd;
+}
+
+.camp-structure h3 {
+  font-size: 0.9rem;
+}
+
+.camp-structure small {
+  color: #d7c7a7;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.explore-zones {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.explore-zone {
+  min-height: 3rem;
+  padding: 0.45rem;
+  text-align: left;
+}
+
+.explore-zone span,
+.explore-zone small {
+  display: block;
+}
+
+.explore-zone small {
+  margin-top: 0.15rem;
+  color: #d7c7a7;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.explore-zone.active {
+  color: #08130f;
+  background: #8fd3bd;
+}
+
+.explore-zone.active small {
+  color: #12382d;
+}
+
+.log__entries {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.log__entries p {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.log__entries span {
+  color: #8fd3bd;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stat__header {
+  margin-bottom: 0.35rem;
+  color: #e4d8c0;
+}
+
+.stat__track {
+  height: 0.72rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stat__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.stat__fill--health { background: #6ee7b7; }
+.stat__fill--hunger { background: #f2c46d; }
+.stat__fill--thirst { background: #60a5fa; }
+.stat__fill--energy { background: #facc15; }
+.stat__fill--sanity { background: #c084fc; }
+
+button {
+  min-height: 2.55rem;
+  border: 1px solid rgba(242, 196, 109, 0.28);
+  border-radius: 6px;
+  padding: 0.65rem 0.8rem;
+  color: #fff8ec;
+  background: rgba(242, 196, 109, 0.12);
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: rgba(242, 196, 109, 0.72);
+  background: rgba(242, 196, 109, 0.2);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.side-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+}
+
+.tabs button {
+  min-height: 2.35rem;
+  padding-inline: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.tabs .active,
+.end-day {
+  color: #08130f;
+  background: #f2c46d;
+}
+
+.resource,
+.build-card,
+.zone-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.resource {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+}
+
+.resource strong {
+  color: #fff8ec;
+}
+
+.build-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.8rem;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.65rem;
+}
+
+.build-card.built {
+  border-color: rgba(110, 231, 183, 0.36);
+  background: rgba(110, 231, 183, 0.08);
+}
+
+.build-card h3 {
+  font-size: 1rem;
+}
+
+.build-card__status {
+  display: inline-block;
+  margin-top: 0.25rem;
+  color: #f2c46d;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.build-card small {
+  display: block;
+  margin-top: 0.35rem;
+  color: #f2c46d;
+  font-weight: 850;
+}
+
+.build-card__effect {
+  color: #8fd3bd;
+}
+
+.build-card__requirement {
+  color: #d7c7a7;
+}
+
+.rescue p {
+  margin: 0.75rem 0 0;
+  color: #d7c7a7;
+  line-height: 1.45;
+}
+
+.rescue__track {
+  height: 0.82rem;
+  margin-top: 0.8rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.rescue__track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #8fd3bd;
+}
+
+.rescue .rescue__state {
+  color: #f2c46d;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.zone-card {
+  min-height: 5.5rem;
+  padding: 0.75rem;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  filter: grayscale(0.85);
+  opacity: 0.56;
+}
+
+.zone-card.discovered {
+  border-color: rgba(143, 211, 189, 0.34);
+  background: rgba(143, 211, 189, 0.07);
+  filter: none;
+  opacity: 1;
+}
+
+.zone-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.zone-card h3 {
+  font-size: 1rem;
+}
+
+.zone-card span {
+  color: #f2c46d;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.zone-card p {
+  margin: 0.5rem 0 0;
+  color: #d7c7a7;
+  line-height: 1.45;
+}
+
+.zone-card small {
+  display: block;
+  margin-top: 0.45rem;
+  color: #8fd3bd;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.error {
+  margin: 0.75rem 0 0;
+  color: #fda4af;
+}
+
+.diary {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.diary-day {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.diary-day h3 {
+  font-size: 0.95rem;
+}
+
+.diary-day ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.55rem 0 0;
+  padding-left: 1rem;
+  color: #d7c7a7;
+}
+
+.diary-day li {
+  line-height: 1.35;
+}
+
+.diary__empty {
+  margin: 0;
+  color: #d7c7a7;
+}
+
+.diary__more {
+  width: 100%;
+}
+
+.action-end-day {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 58rem) {
+  .camp {
+    padding: 1rem;
+  }
+
+  .camp__layout,
+  .stats,
+  .actions,
+  .explore-zones,
+  .inventory,
+  .zones,
+  .camp-structures,
+  .build-card {
+    grid-template-columns: 1fr;
+  }
+
+  .side-panel {
+    position: static;
+    max-height: none;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+}

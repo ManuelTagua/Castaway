@@ -1,0 +1,37 @@
+<main class="home-page">
+  <section class="hero" aria-labelledby="castaway-title">
+    <div class="hero__content">
+      <p class="hero__eyebrow">Island survival</p>
+      <h1 id="castaway-title">Castaway</h1>
+      <p class="hero__subtitle">Survive. Decide. Adapt.</p>
+
+      <div class="difficulty" aria-label="Dificultad">
+        <button type="button" [class.active]="selectedDifficulty() === 'EASY'" (click)="selectDifficulty('EASY')">
+          Fácil
+        </button>
+        <button type="button" [class.active]="selectedDifficulty() === 'NORMAL'" (click)="selectDifficulty('NORMAL')">
+          Normal
+        </button>
+        <button type="button" [class.active]="selectedDifficulty() === 'HARD'" (click)="selectDifficulty('HARD')">
+          Difícil
+        </button>
+      </div>
+
+      <div class="hero__actions" aria-label="Game actions">
+        <button type="button" class="button button--primary" [disabled]="isCreatingGame()" (click)="startNewGame()">
+          {{ isCreatingGame() ? 'Creando...' : 'Nueva partida' }}
+        </button>
+        <button type="button" class="button button--secondary" disabled>Continuar</button>
+      </div>
+
+      @if (createGameError()) {
+        <p class="hero__error">{{ createGameError() }}</p>
+      }
+
+      <div class="connection" [class.connection--ok]="backendStatus() === 'connected'" [class.connection--error]="backendStatus() === 'offline'">
+        <span class="connection__dot" aria-hidden="true"></span>
+        <span>{{ backendMessage() }}</span>
+      </div>
+    </div>
+  </section>
+</main>
