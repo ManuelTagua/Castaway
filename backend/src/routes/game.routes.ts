@@ -3,6 +3,11 @@ import { Router } from 'express';
 import { performActionController } from '../controllers/action.controller.js';
 import { buildStructureController } from '../controllers/build.controller.js';
 import {
+  resolveDecisionController,
+  useAntidoteController,
+  useFirstAidKitController,
+} from '../controllers/decision.controller.js';
+import {
   cookFishController,
   drinkController,
   eatController,
@@ -30,4 +35,7 @@ gameRouter.post('/:id/eat-coconut', eatCoconutController);
 gameRouter.post('/:id/cook-fish', cookFishController);
 gameRouter.post('/:id/filter-water', filterWaterController);
 gameRouter.post('/:id/end-day', endDayController);
+gameRouter.post('/:id/decision', resolveDecisionController);
+gameRouter.post('/:id/use-antidote', useAntidoteController);
+gameRouter.post('/:id/use-first-aid-kit', useFirstAidKitController);
 gameRouter.get('/:id', getGameByIdController);

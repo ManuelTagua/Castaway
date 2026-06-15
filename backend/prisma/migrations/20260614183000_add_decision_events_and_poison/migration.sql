@@ -1,0 +1,3 @@
+ALTER TABLE "Game" ADD COLUMN "pendingDecisionEventKey" TEXT;
+ALTER TABLE "Game" ADD COLUMN "poisonDaysRemaining" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Game" ADD COLUMN "poisonDamagePerDay" INTEGER NOT NULL DEFAULT 0;

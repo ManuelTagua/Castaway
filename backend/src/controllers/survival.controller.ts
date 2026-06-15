@@ -38,6 +38,7 @@ function sendSurvivalResult(result: SurvivalResult, response: Response) {
     message: result.message,
     eventMessage: result.eventMessage,
     eventMessages: result.eventMessages,
+    importantEvent: result.importantEvent,
   });
 }
 

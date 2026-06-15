@@ -70,6 +70,8 @@ export async function performActionController(request: Request, response: Respon
     response.json({
       game: result.game,
       message: result.message,
+      eventMessages: result.eventMessages,
+      importantEvent: result.importantEvent,
     });
   } catch (error) {
     response.status(500).json({

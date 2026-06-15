@@ -42,3 +42,8 @@ export type DiscoveredZone = Prisma.DiscoveredZoneModel
  * 
  */
 export type EventLog = Prisma.EventLogModel
+/**
+ * Model NarrativeEvent
+ * 
+ */
+export type NarrativeEvent = Prisma.NarrativeEventModel

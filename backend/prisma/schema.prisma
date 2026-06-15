@@ -21,12 +21,19 @@ model Game {
   actionsRemaining Int           @default(2)
   isGameOver     Boolean         @default(false)
   isVictory      Boolean         @default(false)
+  pendingDecisionEventKey String?
+  poisonDaysRemaining Int         @default(0)
+  poisonDamagePerDay Int          @default(0)
+  endingType String?
+  endingTitle String?
+  radioSignalDays Int             @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   inventoryItems InventoryItem[]
   builtStructures BuiltStructure[]
   discoveredZones DiscoveredZone[]
   eventLogs      EventLog[]
+  narrativeEvents NarrativeEvent[]
 }
 
 model InventoryItem {
@@ -70,4 +77,16 @@ model EventLog {
   message   String
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model NarrativeEvent {
+  id         String   @id @default(uuid())
+  gameId     String
+  eventKey   String
+  occurredAt DateTime @default(now())
+  day        Int
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, eventKey])
+  @@index([gameId, day])
 }

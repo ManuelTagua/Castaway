@@ -1,5 +1,13 @@
 import { prisma } from '../prisma/client.js';
 import { gameDetailsInclude } from './game.service.js';
+import {
+  maybeRollNarrativeEvent,
+  maybeRollDecisionEvent,
+  persistNarrativeEvent,
+  persistPendingDecisionEvent,
+  applyNarrativeRegularStatDelta,
+  decisionEvents,
+} from './narrative-event.service.js';
 
 type ConsumableResource = 'FOOD' | 'WATER';
 type TransformAction = 'COOK_FISH' | 'FILTER_WATER';
@@ -22,6 +30,7 @@ export type SurvivalResult =
       message: string;
       eventMessage?: string;
       eventMessages?: string[];
+      importantEvent?: { title: string; message: string };
     }
   | { status: 'not_found' }
   | { status: 'game_over' }
@@ -78,6 +87,13 @@ const rescueProgressByWeather: Record<Weather, number> = {
   CLOUDY: 15,
   RAIN: 5,
   STORM: 0,
+};
+
+const endingTitles: Record<string, string> = {
+  CLASSIC_RESCUE: 'Rescate clásico',
+  SIGNAL_MIRROR_RESCUE: 'Espejo de señales',
+  EMERGENCY_RADIO: 'Radio de emergencia',
+  LEGENDARY_SURVIVOR: 'Superviviente legendario',
 };
 
 function clampStat(value: number) {
@@ -394,6 +410,8 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
     where: { id: gameId },
     include: {
       builtStructures: true,
+      inventoryItems: true,
+      narrativeEvents: true,
     },
   });
 
@@ -414,7 +432,11 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
   const hasWaterCollector = builtTypes.has('WATER_COLLECTOR');
   const hasLargeWaterCollector = builtTypes.has('LARGE_WATER_COLLECTOR');
   const hasSignalFire = builtTypes.has('SIGNAL_FIRE');
+  const hasSignalMirror = builtTypes.has('SIGNAL_MIRROR');
+  const hasRepairedRadio = builtTypes.has('REPAIRED_RADIO');
   const nightEvent = rollNightEvent();
+  const decisionEvent = maybeRollDecisionEvent(game);
+  const narrativeEvent = decisionEvent || game.pendingDecisionEventKey ? null : maybeRollNarrativeEvent(game, 'NIGHT');
   const nextDay = game.day + 1;
   const nextWeather = rollWeather(nextDay);
   const weatherMessages = [`El nuevo día amanece ${weatherLabels[nextWeather]}.`];
@@ -425,6 +447,23 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
   let health = game.health;
   let energy = game.energy - currentDailyDecay.energy + (nightEvent.stats.energy ?? 0);
   let sanity = game.sanity + (nightEvent.stats.sanity ?? 0);
+  let poisonDaysRemaining = game.poisonDaysRemaining;
+  let poisonDamagePerDay = game.poisonDamagePerDay;
+  const poisonMessages: string[] = [];
+
+  if (poisonDaysRemaining > 0 && poisonDamagePerDay > 0) {
+    health -= poisonDamagePerDay;
+    poisonDaysRemaining -= 1;
+    poisonMessages.push(
+      poisonDaysRemaining > 0
+        ? `El veneno te causa ${poisonDamagePerDay} de daño. Quedan ${poisonDaysRemaining} días.`
+        : `El veneno te causa ${poisonDamagePerDay} de daño y abandona tu cuerpo.`,
+    );
+
+    if (poisonDaysRemaining <= 0) {
+      poisonDamagePerDay = 0;
+    }
+  }
 
   if (hasImprovedShelter) {
     hunger += 1;
@@ -478,8 +517,8 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
   hunger = clampStat(hunger);
   thirst = clampStat(thirst);
   energy = clampStat(energy);
-  sanity = clampStat(sanity);
-  health = clampHealth(health, difficulty);
+  sanity = applyNarrativeRegularStatDelta(clampStat(sanity), narrativeEvent?.sanityDelta);
+  health = Math.max(0, clampHealth(health, difficulty) + (narrativeEvent?.healthDelta ?? 0));
 
   let healthPenalty = 0;
 
@@ -497,9 +536,13 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
 
   const nextHealth = clampHealth(health - healthPenalty, difficulty);
   let rescueProgress = game.rescueProgress;
+  let radioSignalDays = game.radioSignalDays;
+  let endingType: string | null = null;
+  let visualRescueSucceeded = false;
 
   if (hasSignalFire) {
-    const rescueGain = rescueProgressByWeather[nextWeather];
+    const mirrorBonus = hasSignalMirror && nextWeather === 'SUNNY' ? 35 : hasSignalMirror && nextWeather === 'CLOUDY' ? 18 : 0;
+    const rescueGain = rescueProgressByWeather[nextWeather] + mirrorBonus;
     rescueProgress = clampStat(rescueProgress + rescueGain);
 
     if (rescueProgress >= 75 && rescueProgress < 100) {
@@ -507,17 +550,49 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
     } else if (rescueGain === 0) {
       weatherMessages.push('La tormenta oculta tu señal de rescate.');
     }
+
+    if (hasSignalMirror && mirrorBonus > 0) {
+      weatherMessages.push('El espejo de señales lanza destellos visibles desde el mar.');
+    }
+
+    const rescueChance = Math.min(0.85, 0.08 + rescueProgress / 160 + (hasSignalMirror ? 0.25 : 0));
+    visualRescueSucceeded = rescueProgress >= 100 || Math.random() < rescueChance;
   }
 
-  const isVictory = rescueProgress >= 100;
+  if (hasRepairedRadio && radioSignalDays > 0) {
+    radioSignalDays += 1;
+    weatherMessages.push(
+      radioSignalDays >= 3
+        ? 'La radio recibe respuesta. Han localizado tu posición.'
+        : `La radio sigue emitiendo. Quedan ${3 - radioSignalDays} día(s) para que puedan localizarte.`,
+    );
+  }
+
+  if (radioSignalDays >= 3) {
+    endingType = 'EMERGENCY_RADIO';
+  } else if (nextDay >= 100) {
+    endingType = 'LEGENDARY_SURVIVOR';
+  } else if (visualRescueSucceeded) {
+    endingType = hasSignalMirror ? 'SIGNAL_MIRROR_RESCUE' : 'CLASSIC_RESCUE';
+  }
+
+  const isVictory = !!endingType;
   const isGameOver = !isVictory && nextHealth <= 0;
 
-  if (isVictory) {
+  if (endingType === 'CLASSIC_RESCUE' || endingType === 'SIGNAL_MIRROR_RESCUE') {
     weatherMessages.push('Un barco ha visto tu señal. Has sido rescatado.');
+  } else if (endingType === 'EMERGENCY_RADIO') {
+    weatherMessages.push('El rescate llega siguiendo tu señal de radio.');
+  } else if (endingType === 'LEGENDARY_SURVIVOR') {
+    weatherMessages.push('Ya no esperas ser rescatado. La isla se ha convertido en tu hogar.');
   }
 
   const message = isVictory
-    ? 'Un barco ha visto tu señal. Has sido rescatado.'
+    ? endingType === 'LEGENDARY_SURVIVOR'
+      ? 'Ya no esperas ser rescatado. La isla se ha convertido en tu hogar.'
+      : endingType === 'EMERGENCY_RADIO'
+        ? 'El rescate ha llegado gracias a la radio de emergencia.'
+        : 'Un barco ha visto tu señal. Has sido rescatado.'
     : isGameOver
       ? 'La supervivencia ha terminado.'
       : healthPenalty > 0
@@ -544,6 +619,25 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
           day: game.day,
           type: 'NIGHT_EVENT',
           message: nightEvent.message,
+        },
+      });
+    }
+
+    if (narrativeEvent) {
+      await persistNarrativeEvent(transaction, gameId, game.day, narrativeEvent);
+    }
+
+    if (decisionEvent) {
+      await persistPendingDecisionEvent(transaction, gameId, game.day, decisionEvent);
+    }
+
+    for (const poisonMessage of poisonMessages) {
+      await transaction.eventLog.create({
+        data: {
+          gameId,
+          day: game.day,
+          type: 'SURVIVAL',
+          message: poisonMessage,
         },
       });
     }
@@ -607,20 +701,44 @@ export async function endDay(gameId: string): Promise<SurvivalResult> {
         sanity,
         weather: nextWeather,
         rescueProgress,
+        radioSignalDays,
         isGameOver,
         isVictory,
+        endingType,
+        endingTitle: endingType ? endingTitles[endingType] : null,
+        pendingDecisionEventKey: decisionEvent ?? game.pendingDecisionEventKey,
+        poisonDaysRemaining,
+        poisonDamagePerDay,
       },
       include: gameDetailsInclude,
     });
   });
 
-  const eventMessages = [nightEvent.message, ...weatherMessages];
+  const decisionMessage = decisionEvent ? decisionEvents[decisionEvent].message : null;
+  const eventMessages = [
+    nightEvent.message,
+    ...poisonMessages,
+    ...(decisionMessage ? [decisionMessage] : []),
+    ...(narrativeEvent ? [narrativeEvent.message] : []),
+    ...weatherMessages,
+  ];
 
   return {
     status: 'updated',
     game: updatedGame,
-    message,
+    message: [message, decisionMessage, narrativeEvent?.message].filter(Boolean).join(' '),
     eventMessage: eventMessages.join(' '),
     eventMessages,
+    importantEvent: decisionEvent
+      ? {
+          title: decisionEvents[decisionEvent].title,
+          message: decisionEvents[decisionEvent].message,
+        }
+      : narrativeEvent?.isSevere
+      ? {
+          title: 'La noche se complica',
+          message: narrativeEvent.message,
+        }
+      : undefined,
   };
 }

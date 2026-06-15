@@ -22,54 +22,20 @@
     }
 
     @if (loadStatus() === 'ready') {
-      @if (game()?.isVictory) {
-        <section class="victory">
-          <p>RESCATE</p>
-          <h1>Has sido rescatado</h1>
-        </section>
-      } @else if (game()?.isGameOver) {
-        <section class="game-over">
-          <p>GAME OVER</p>
-          <h1>La isla ha ganado</h1>
-        </section>
-      }
-
       <div class="camp__layout">
         <section class="camp__main">
           <div class="camp__title">
-            <p class="camp__eyebrow">Refugio provisional</p>
             <h1>Campamento</h1>
             <p class="camp__intro">Has despertado en una isla desconocida. Necesitas sobrevivir.</p>
           </div>
-
           <section class="panel log" aria-labelledby="log-title">
             <h2 id="log-title">Registro del campamento</h2>
-            <div class="log__entries">
-              <p>
-                <span>Último evento importante</span>
-                {{ lastActionMessage() || 'El campamento espera tu siguiente decisión.' }}
-              </p>
-              @for (eventMessage of lastEventMessages(); track eventMessage) {
-                <p>
-                  <span>Evento nocturno</span>
-                  {{ eventMessage }}
-                </p>
-              }
-            </div>
-          </section>
-
-          <section class="panel camp-visual" aria-labelledby="camp-visual-title">
-            <h2 id="camp-visual-title">Campamento</h2>
-            <div class="camp-structures">
-              @for (structure of structures(); track structure.type) {
-                <article class="camp-structure" [class.built]="structure.isBuilt">
-                  <span class="camp-structure__mark">{{ structureMark(structure.type) }}</span>
-                  <div>
-                    <h3>{{ structure.name }}</h3>
-                    <small>{{ structure.isBuilt ? 'Construida' : 'Bloqueada' }}</small>
-                  </div>
-                </article>
-              }
+            <div class="log__latest">
+              <span class="log__icon">{{ latestCampEventIcon() }}</span>
+              <div>
+                <strong>{{ latestCampEventType() }}</strong>
+                <p>{{ latestCampEvent() }}</p>
+              </div>
             </div>
           </section>
 
@@ -83,14 +49,38 @@
                     <strong>{{ stat.value }}</strong>
                   </div>
                   <div class="stat__track" aria-hidden="true">
-                    <span class="stat__fill stat__fill--{{ stat.className }}" [style.width.%]="stat.value"></span>
+                    <span
+                      class="stat__fill stat__fill--{{ stat.className }}"
+                      [style.width.%]="stat.value"
+                    ></span>
                   </div>
                 </div>
               }
             </div>
+            @if (poisonStatus(); as poison) {
+              <div class="poison-alert">
+                <strong>Envenenado</strong>
+                <span>{{ poison }}</span>
+              </div>
+            }
+            <div class="active-statuses">
+              <h3>Estados activos</h3>
+              @if (activeStatuses().length === 0) {
+                <p>Sin estados negativos.</p>
+              }
+              @for (status of activeStatuses(); track status.title) {
+                <article>
+                  <span>{{ status.icon }}</span>
+                  <div>
+                    <strong>{{ status.title }}</strong>
+                    <small>{{ status.detail }}</small>
+                  </div>
+                </article>
+              }
+            </div>
           </section>
 
-          <section class="panel" aria-labelledby="actions-title">
+          <section class="panel actions-panel" aria-labelledby="actions-title">
             <div class="panel__title">
               <h2 id="actions-title">Acciones del día</h2>
               <span>{{ game()?.actionsRemaining ?? 0 }} restantes</span>
@@ -100,10 +90,13 @@
                 <button
                   type="button"
                   class="action-button"
-                  [disabled]="isPerformingAction() || shouldEndDay() || game()?.isGameOver || game()?.isVictory"
+                  [disabled]="isDailyActionDisabled(dailyAction)"
                   (click)="performAction(dailyAction)"
                 >
-                  {{ dailyAction.label }}
+                  <span>{{ dailyAction.label }}</span>
+                  @if (dailyAction.action === 'FISH' && !hasSceneStructure('FISHING_ROD')) {
+                    <small>Necesitas una caña de pescar</small>
+                  }
                 </button>
               }
             </div>
@@ -113,168 +106,476 @@
                   type="button"
                   class="explore-zone"
                   [class.active]="selectedExploreZone() === zone.type"
-                  [disabled]="!zone.isDiscovered || isPerformingAction() || shouldEndDay() || game()?.isGameOver || game()?.isVictory"
+                  [disabled]="
+                    !zone.isDiscovered ||
+                    isPerformingAction() ||
+                    shouldEndDay() ||
+                    game()?.pendingDecisionEventKey ||
+                    game()?.isGameOver ||
+                    game()?.isVictory
+                  "
                   (click)="selectExploreZone(zone.type)"
                 >
-                  <span>{{ zone.name }}</span>
-                  <small>{{ zone.isDiscovered ? 'Disponible' : 'Bloqueada' }}</small>
+                  <span class="explore-zone__icon">{{
+                    zone.isDiscovered ? zone.name.charAt(0) : '?'
+                  }}</span>
+                  <span>{{ zone.isDiscovered ? zone.name : '???' }}</span>
+                  @if (zone.isDiscovered) {
+                    <small>Explorar aquí</small>
+                  } @else {
+                    <small aria-label="Bloqueada">&#128274;</small>
+                  }
                 </button>
               }
             </div>
             @if (actionError()) {
               <p class="error">{{ actionError() }}</p>
             }
-            <button
-              type="button"
-              class="end-day action-end-day"
-              [disabled]="!shouldEndDay() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory"
-              (click)="endDay()"
-            >
-              Terminar día
-            </button>
           </section>
 
-          <section class="panel rescue" aria-labelledby="rescue-title">
-            <h2 id="rescue-title">Rescate</h2>
-            <p>{{ rescueStatus().text }}</p>
-          </section>
-
-          <section class="panel" aria-labelledby="map-title">
-            <h2 id="map-title">Mapa de la isla</h2>
-            <div class="zones">
-              @for (zone of zones(); track zone.type) {
-                <article class="zone-card" [class.discovered]="zone.isDiscovered">
-                  <div class="zone-card__header">
-                    <h3>{{ zone.name }}</h3>
-                    <span>{{ zone.isDiscovered ? 'Descubierta' : 'No descubierta' }}</span>
-                  </div>
-                  @if (zone.isDiscovered) {
-                    <p>{{ zone.effect }}</p>
-                    <small>{{ zoneBenefit(zone.type) }}</small>
-                  } @else {
-                    <p>Explora otras zonas para descubrirla.</p>
-                  }
-                </article>
-              }
+          <section class="panel refuge-panel" aria-labelledby="refuge-title">
+            <div class="panel__title">
+              <h2 id="refuge-title">Estado del refugio</h2>
+            </div>
+            <div class="refuge-status-grid">
+              <article
+                class="refuge-status-card"
+                [class.built]="
+                  hasSceneStructure('BASIC_SHELTER') || hasSceneStructure('IMPROVED_SHELTER')
+                "
+              >
+                <span class="status-icon">R</span>
+                <div>
+                  <h3>Refugio</h3>
+                  <strong>{{
+                    hasSceneStructure('IMPROVED_SHELTER')
+                      ? 'Construido +'
+                      : hasSceneStructure('BASIC_SHELTER')
+                        ? 'Construido'
+                        : 'Pendiente'
+                  }}</strong>
+                </div>
+              </article>
+              <article class="refuge-status-card" [class.built]="hasSceneStructure('CAMPFIRE')">
+                <span class="status-icon">F</span>
+                <div>
+                  <h3>Fogata</h3>
+                  <strong>{{ hasSceneStructure('CAMPFIRE') ? 'Construida' : 'Pendiente' }}</strong>
+                </div>
+              </article>
+              <article class="refuge-status-card" [class.built]="hasSceneStructure('SIGNAL_FIRE')">
+                <span class="status-icon">S</span>
+                <div>
+                  <h3>Señal de rescate</h3>
+                  <strong>{{
+                    hasSceneStructure('SIGNAL_FIRE') ? 'Construida' : 'Pendiente'
+                  }}</strong>
+                </div>
+              </article>
+              <article
+                class="refuge-status-card"
+                [class.built]="
+                  hasSceneStructure('STONE_KNIFE') ||
+                  hasSceneStructure('WOODEN_AXE') ||
+                  hasSceneStructure('LEAF_BASKET') ||
+                  hasSceneStructure('WATER_FILTER') ||
+                  hasSceneStructure('FISHING_ROD')
+                "
+              >
+                <span class="status-icon">T</span>
+                <div>
+                  <h3>Herramientas</h3>
+                  <strong>{{
+                    hasSceneStructure('STONE_KNIFE') ||
+                    hasSceneStructure('WOODEN_AXE') ||
+                    hasSceneStructure('LEAF_BASKET') ||
+                    hasSceneStructure('WATER_FILTER') ||
+                    hasSceneStructure('FISHING_ROD')
+                      ? 'Construidas'
+                      : 'Pendientes'
+                  }}</strong>
+                </div>
+              </article>
             </div>
           </section>
         </section>
 
-        <aside class="panel side-panel">
-          <div class="tabs" role="tablist" aria-label="Paneles del campamento">
-            <button type="button" [class.active]="activeTab() === 'inventory'" (click)="selectTab('inventory')">
-              Inventario
+        <aside class="side-panel">
+          <div class="side-panel__controls">
+            <button
+              type="button"
+              class="end-day"
+              [disabled]="
+                !shouldEndDay() ||
+                isUsingSurvivalAction() ||
+                game()?.pendingDecisionEventKey ||
+                game()?.isGameOver ||
+                game()?.isVictory
+              "
+              (click)="endDay()"
+            >
+              Terminar día
             </button>
-            <button type="button" [class.active]="activeTab() === 'build'" (click)="selectTab('build')">
-              Construcción
-            </button>
-            <button type="button" [class.active]="activeTab() === 'survival'" (click)="selectTab('survival')">
-              Supervivencia
-            </button>
-            <button type="button" [class.active]="activeTab() === 'diary'" (click)="selectTab('diary')">
-              Diario
+            <button type="button" class="map-button" (click)="openMap()">Mapa</button>
+            <button type="button" class="help-button" aria-label="Abrir ayuda" (click)="openHelp()">
+              ?
             </button>
           </div>
 
-          @if (activeTab() === 'inventory') {
-            <div class="inventory">
-              @for (resource of inventory(); track resource.type) {
-                <div class="resource">
-                  <span>{{ resource.label }}</span>
-                  <strong>{{ resource.quantity }}</strong>
+          <section class="panel side-panel__tabs">
+            <div class="tabs" role="tablist" aria-label="Paneles del campamento">
+              <button
+                type="button"
+                [class.active]="activeTab() === 'inventory'"
+                (click)="selectTab('inventory')"
+              >
+                Inventario
+              </button>
+              <button
+                type="button"
+                [class.active]="activeTab() === 'build'"
+                (click)="selectTab('build')"
+              >
+                Construcción
+              </button>
+              <button
+                type="button"
+                [class.active]="activeTab() === 'survival'"
+                (click)="selectTab('survival')"
+              >
+                Supervivencia
+              </button>
+              <button
+                type="button"
+                [class.active]="activeTab() === 'diary'"
+                (click)="selectTab('diary')"
+              >
+                Diario
+              </button>
+            </div>
+
+            <div class="side-panel__body">
+              @if (activeTab() === 'inventory') {
+                <div class="inventory">
+                  @for (resource of inventory(); track resource.type) {
+                    <div class="resource" [class.resource--locked]="!resource.isRevealed">
+                      <span class="resource__mark">
+                        @if (resource.isRevealed) {
+                          {{ resource.label.charAt(0) }}
+                        } @else {
+                          &#128274;
+                        }
+                      </span>
+                      <span>{{ resource.isRevealed ? resource.label : '???' }}</span>
+                      <strong>
+                        @if (resource.isRevealed) {
+                          {{ resource.quantity }}
+                        } @else {
+                          &#8212;
+                        }
+                      </strong>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (activeTab() === 'build') {
+                <div class="build-list">
+                  @for (structure of structures(); track structure.type) {
+                    <article class="build-card" [class.built]="structure.isBuilt">
+                      <div>
+                        <h3>{{ structure.name }}</h3>
+                        <span class="build-card__status">{{
+                          structure.isBuilt ? 'Construido' : 'No construido'
+                        }}</span>
+                        <p>{{ structure.description }}</p>
+                        <small class="build-card__effect">{{ structure.effect }}</small>
+                        @if (structure.requirement) {
+                          <small class="build-card__requirement">{{ structure.requirement }}</small>
+                        }
+                        <small>Coste: {{ structure.costText }}</small>
+                      </div>
+                      <button
+                        type="button"
+                        [disabled]="
+                          structure.isBuilt ||
+                          !structure.canBuild ||
+                          isBuilding() ||
+                          game()?.pendingDecisionEventKey ||
+                          game()?.isGameOver ||
+                          game()?.isVictory
+                        "
+                        (click)="build(structure)"
+                      >
+                        {{ structure.isBuilt ? 'Hecho' : 'Construir' }}
+                      </button>
+                    </article>
+                  }
+                  @if (buildError()) {
+                    <p class="error">{{ buildError() }}</p>
+                  }
+                </div>
+              }
+
+              @if (activeTab() === 'survival') {
+                <div class="survival">
+                  <button
+                    type="button"
+                    [disabled]="
+                      !canEat() ||
+                      isUsingSurvivalAction() ||
+                      game()?.isGameOver ||
+                      game()?.isVictory
+                    "
+                    (click)="eat()"
+                  >
+                    Comer
+                  </button>
+                  <button
+                    type="button"
+                    [disabled]="
+                      !canDrink() ||
+                      isUsingSurvivalAction() ||
+                      game()?.isGameOver ||
+                      game()?.isVictory
+                    "
+                    (click)="drink()"
+                  >
+                    Beber
+                  </button>
+                  @if (canEatCookedFish()) {
+                    <button
+                      type="button"
+                      [disabled]="
+                        isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory
+                      "
+                      (click)="eatCookedFish()"
+                    >
+                      Comer pescado
+                    </button>
+                  }
+                  @if (canEatCoconut()) {
+                    <button
+                      type="button"
+                      [disabled]="
+                        isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory
+                      "
+                      (click)="eatCoconut()"
+                    >
+                      Consumir coco
+                    </button>
+                  }
+                  @if (canCookFish()) {
+                    <button
+                      type="button"
+                      [disabled]="
+                        isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory
+                      "
+                      (click)="cookFish()"
+                    >
+                      Cocinar pescado
+                    </button>
+                  }
+                  @if (canFilterWater()) {
+                    <button
+                      type="button"
+                      [disabled]="
+                        isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory
+                      "
+                      (click)="filterWater()"
+                    >
+                      Filtrar agua
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    [disabled]="
+                      !canUseAntidote() ||
+                      isUsingSurvivalAction() ||
+                      game()?.isGameOver ||
+                      game()?.isVictory
+                    "
+                    (click)="useAntidote()"
+                  >
+                    Usar cura
+                  </button>
+                  <button
+                    type="button"
+                    [disabled]="
+                      !canUseFirstAidKit() ||
+                      isUsingSurvivalAction() ||
+                      game()?.isGameOver ||
+                      game()?.isVictory
+                    "
+                    (click)="useFirstAidKit()"
+                  >
+                    Usar botiquín
+                  </button>
+                  @if (survivalError()) {
+                    <p class="error">{{ survivalError() }}</p>
+                  }
+                </div>
+              }
+
+              @if (activeTab() === 'diary') {
+                <div class="diary">
+                  <h2>Diario de supervivencia</h2>
+                  @if (diaryGroups().length === 0) {
+                    <p class="diary__empty">Aún no hay eventos registrados.</p>
+                  }
+                  @for (group of diaryGroups(); track group.day) {
+                    <section class="diary-day">
+                      <h3>Día {{ group.day }}</h3>
+                      <ul>
+                        @for (event of group.events; track event.id) {
+                          <li>{{ event.message }}</li>
+                        }
+                      </ul>
+                    </section>
+                  }
+                  @if (canShowMoreDiary()) {
+                    <button type="button" class="diary__more" (click)="showMoreDiary()">
+                      Ver más
+                    </button>
+                  }
                 </div>
               }
             </div>
-          }
-
-          @if (activeTab() === 'build') {
-            <div class="build-list">
-              @for (structure of structures(); track structure.type) {
-                <article class="build-card" [class.built]="structure.isBuilt">
-                  <div>
-                    <h3>{{ structure.name }}</h3>
-                    <span class="build-card__status">{{ structure.isBuilt ? 'Construido' : 'No construido' }}</span>
-                    <p>{{ structure.description }}</p>
-                    <small class="build-card__effect">{{ structure.effect }}</small>
-                    @if (structure.requirement) {
-                      <small class="build-card__requirement">{{ structure.requirement }}</small>
-                    }
-                    <small>Coste: {{ structure.costText }}</small>
-                  </div>
-                  <button
-                    type="button"
-                    [disabled]="structure.isBuilt || !structure.canBuild || isBuilding() || game()?.isGameOver || game()?.isVictory"
-                    (click)="build(structure)"
-                  >
-                    {{ structure.isBuilt ? 'Hecho' : 'Construir' }}
-                  </button>
-                </article>
-              }
-              @if (buildError()) {
-                <p class="error">{{ buildError() }}</p>
-              }
-            </div>
-          }
-
-          @if (activeTab() === 'survival') {
-            <div class="survival">
-              <button type="button" [disabled]="!canEat() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eat()">
-                Comer
-              </button>
-              <button type="button" [disabled]="!canDrink() || isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="drink()">
-                Beber
-              </button>
-              @if (canEatCookedFish()) {
-                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eatCookedFish()">
-                  Comer pescado
-                </button>
-              }
-              @if (canEatCoconut()) {
-                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="eatCoconut()">
-                  Consumir coco
-                </button>
-              }
-              @if (canCookFish()) {
-                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="cookFish()">
-                  Cocinar pescado
-                </button>
-              }
-              @if (canFilterWater()) {
-                <button type="button" [disabled]="isUsingSurvivalAction() || game()?.isGameOver || game()?.isVictory" (click)="filterWater()">
-                  Filtrar agua
-                </button>
-              }
-              @if (survivalError()) {
-                <p class="error">{{ survivalError() }}</p>
-              }
-            </div>
-          }
-
-          @if (activeTab() === 'diary') {
-            <div class="diary">
-              <h2>Diario de supervivencia</h2>
-              @if (diaryGroups().length === 0) {
-                <p class="diary__empty">Aún no hay eventos registrados.</p>
-              }
-              @for (group of diaryGroups(); track group.day) {
-                <section class="diary-day">
-                  <h3>Día {{ group.day }}</h3>
-                  <ul>
-                    @for (event of group.events; track event.id) {
-                      <li>{{ event.message }}</li>
-                    }
-                  </ul>
-                </section>
-              }
-              @if (canShowMoreDiary()) {
-                <button type="button" class="diary__more" (click)="showMoreDiary()">
-                  Ver más
-                </button>
-              }
-            </div>
-          }
+          </section>
         </aside>
       </div>
     }
   </section>
+
+  @if (decisionEvent(); as decision) {
+    <div class="modal-backdrop" role="presentation">
+      <section
+        class="event-modal decision-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="decision-title"
+      >
+        <p>Decisión</p>
+        <h2 id="decision-title">{{ decision.title }}</h2>
+        <span>{{ decision.body }}</span>
+        <div class="modal-actions">
+          @for (choice of decision.choices; track choice.key) {
+            <button
+              type="button"
+              [disabled]="isResolvingDecision()"
+              (click)="resolveDecision(choice.key)"
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (importantModal(); as modal) {
+    <div class="modal-backdrop" role="presentation">
+      <section
+        class="event-modal event-modal--{{ modal.kind }}"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="important-title"
+      >
+        <p>{{ modal.eyebrow }}</p>
+        <h2 id="important-title">{{ modal.title }}</h2>
+        <span>{{ modal.body }}</span>
+        @if (modal.stats?.length) {
+          <dl class="final-stats">
+            @for (stat of modal.stats; track stat.label) {
+              <div>
+                <dt>{{ stat.label }}</dt>
+                <dd>{{ stat.value }}</dd>
+              </div>
+            }
+          </dl>
+        }
+        @if (modal.kind === 'game-over') {
+          <div class="modal-actions">
+            <button type="button" (click)="retryGame()">Reintentar</button>
+            <button type="button" class="button-secondary" (click)="goToMenu()">
+              Volver al menú principal
+            </button>
+          </div>
+        } @else {
+          <button type="button" (click)="closeImportantModal()">Continuar</button>
+        }
+      </section>
+    </div>
+  }
+
+  @if (isHelpOpen()) {
+    <div class="modal-backdrop" role="presentation">
+      <section class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <div class="map-modal__header">
+          <h2 id="help-title">Supervivencia en la isla</h2>
+          <button type="button" (click)="closeHelp()">Cerrar</button>
+        </div>
+        <div class="help-copy">
+          <p>Tras un accidente has despertado solo en una isla desconocida.</p>
+          <p>No sabes dónde estás ni cuándo llegará ayuda.</p>
+          <p>
+            Tu objetivo es sobrevivir el tiempo suficiente para encontrar una forma de escapar o ser
+            rescatado.
+          </p>
+          <p>Gestiona cuidadosamente tu comida, agua, energía, salud y cordura.</p>
+          <p>Explora nuevas zonas de la isla para encontrar recursos, herramientas y pistas.</p>
+          <p>Construye refugios y mejoras para soportar el clima y los peligros.</p>
+          <p>Tus decisiones importan.</p>
+          <p>Algunos eventos pueden ayudarte.</p>
+          <p>Otros pueden condenarte.</p>
+          <p>La isla guarda secretos y existen varias formas distintas de alcanzar un final.</p>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (isMapOpen()) {
+    <div class="modal-backdrop" role="presentation">
+      <section class="map-modal" role="dialog" aria-modal="true" aria-labelledby="map-title">
+        <div class="map-modal__header">
+          <h2 id="map-title">Mapa de la isla</h2>
+          <button type="button" (click)="closeMap()">Cerrar</button>
+        </div>
+        <div class="map-image-shell" aria-label="Mapa visual de zonas de la isla">
+          @if (canShowMapImage()) {
+            <img [src]="mapImageSrc()" alt="Mapa de la isla" (error)="handleMapImageError()" />
+          } @else {
+            <div class="map-placeholder">
+              <strong>Mapa no disponible</strong>
+              <span>Coloca island_stage_{{ mapStage() }}.png en src/assets/maps/.</span>
+            </div>
+          }
+        </div>
+        <div class="map-grid" aria-label="Zonas de la isla">
+          @for (zone of zones(); track zone.type) {
+            <article class="map-zone-card" [class.discovered]="zone.isDiscovered">
+              <span class="map-zone-card__icon">
+                {{ zone.isDiscovered ? zone.name.charAt(0) : '?' }}
+              </span>
+              <div>
+                <h3>{{ zone.isDiscovered ? zone.name : '???' }}</h3>
+                @if (zone.isDiscovered) {
+                  <strong>Descubierta</strong>
+                } @else {
+                  <strong aria-label="Bloqueada">&#128274;</strong>
+                }
+                <p>
+                  {{
+                    zone.isDiscovered
+                      ? zone.effect
+                      : 'Explora otras zonas para encontrar este lugar.'
+                  }}
+                </p>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    </div>
+  }
 </main>

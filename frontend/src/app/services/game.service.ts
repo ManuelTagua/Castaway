@@ -4,7 +4,14 @@ import { Observable } from 'rxjs';
 
 import { Game, GameDifficulty } from '../models/game.model';
 
-export type GameAction = 'FORAGE' | 'SEARCH_WATER' | 'REST' | 'EXPLORE' | 'FISH';
+export type GameAction =
+  | 'FORAGE'
+  | 'SEARCH_WATER'
+  | 'REST'
+  | 'EXPLORE'
+  | 'FISH'
+  | 'LEAVE_ISLAND'
+  | 'SEND_RADIO_SIGNAL';
 export type ExploreZone = 'BEACH' | 'JUNGLE' | 'CAVE' | 'CLIFFS';
 export type StructureType =
   | 'CAMPFIRE'
@@ -17,13 +24,35 @@ export type StructureType =
   | 'LEAF_BASKET'
   | 'WATER_FILTER'
   | 'IMPROVED_SHELTER'
-  | 'LARGE_WATER_COLLECTOR';
+  | 'LARGE_WATER_COLLECTOR'
+  | 'FIRST_AID_KIT'
+  | 'IMPROVISED_RAFT'
+  | 'REPAIRED_RADIO'
+  | 'SIGNAL_MIRROR';
+
+export type DecisionChoice =
+  | 'OPEN'
+  | 'IGNORE'
+  | 'FOLLOW'
+  | 'SCARE'
+  | 'HIDE'
+  | 'LEAVE'
+  | 'EAT'
+  | 'KEEP'
+  | 'HELP'
+  | 'INVESTIGATE'
+  | 'STAY'
+  | 'SEARCH';
 
 export interface GameMutationResponse {
   game: Game;
   message: string;
   eventMessage?: string;
   eventMessages?: string[];
+  importantEvent?: {
+    title: string;
+    message: string;
+  };
 }
 
 @Injectable({
@@ -84,5 +113,17 @@ export class GameService {
 
   endDay(id: string): Observable<GameMutationResponse> {
     return this.http.post<GameMutationResponse>(`${this.gamesUrl}/${id}/end-day`, {});
+  }
+
+  resolveDecision(id: string, choice: DecisionChoice): Observable<GameMutationResponse> {
+    return this.http.post<GameMutationResponse>(`${this.gamesUrl}/${id}/decision`, { choice });
+  }
+
+  useAntidote(id: string): Observable<GameMutationResponse> {
+    return this.http.post<GameMutationResponse>(`${this.gamesUrl}/${id}/use-antidote`, {});
+  }
+
+  useFirstAidKit(id: string): Observable<GameMutationResponse> {
+    return this.http.post<GameMutationResponse>(`${this.gamesUrl}/${id}/use-first-aid-kit`, {});
   }
 }

@@ -388,7 +388,8 @@ export const ModelName = {
   InventoryItem: 'InventoryItem',
   BuiltStructure: 'BuiltStructure',
   DiscoveredZone: 'DiscoveredZone',
-  EventLog: 'EventLog'
+  EventLog: 'EventLog',
+  NarrativeEvent: 'NarrativeEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "game" | "inventoryItem" | "builtStructure" | "discoveredZone" | "eventLog"
+    modelProps: "game" | "inventoryItem" | "builtStructure" | "discoveredZone" | "eventLog" | "narrativeEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NarrativeEvent: {
+      payload: Prisma.$NarrativeEventPayload<ExtArgs>
+      fields: Prisma.NarrativeEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NarrativeEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NarrativeEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        findFirst: {
+          args: Prisma.NarrativeEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NarrativeEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        findMany: {
+          args: Prisma.NarrativeEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>[]
+        }
+        create: {
+          args: Prisma.NarrativeEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        createMany: {
+          args: Prisma.NarrativeEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NarrativeEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>[]
+        }
+        delete: {
+          args: Prisma.NarrativeEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        update: {
+          args: Prisma.NarrativeEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.NarrativeEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NarrativeEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NarrativeEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.NarrativeEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarrativeEventPayload>
+        }
+        aggregate: {
+          args: Prisma.NarrativeEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNarrativeEvent>
+        }
+        groupBy: {
+          args: Prisma.NarrativeEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarrativeEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NarrativeEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarrativeEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -831,6 +906,12 @@ export const GameScalarFieldEnum = {
   actionsRemaining: 'actionsRemaining',
   isGameOver: 'isGameOver',
   isVictory: 'isVictory',
+  pendingDecisionEventKey: 'pendingDecisionEventKey',
+  poisonDaysRemaining: 'poisonDaysRemaining',
+  poisonDamagePerDay: 'poisonDamagePerDay',
+  endingType: 'endingType',
+  endingTitle: 'endingTitle',
+  radioSignalDays: 'radioSignalDays',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -883,6 +964,17 @@ export const EventLogScalarFieldEnum = {
 export type EventLogScalarFieldEnum = (typeof EventLogScalarFieldEnum)[keyof typeof EventLogScalarFieldEnum]
 
 
+export const NarrativeEventScalarFieldEnum = {
+  id: 'id',
+  gameId: 'gameId',
+  eventKey: 'eventKey',
+  occurredAt: 'occurredAt',
+  day: 'day'
+} as const
+
+export type NarrativeEventScalarFieldEnum = (typeof NarrativeEventScalarFieldEnum)[keyof typeof NarrativeEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -897,6 +989,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -1082,6 +1182,7 @@ export type GlobalOmitConfig = {
   builtStructure?: Prisma.BuiltStructureOmit
   discoveredZone?: Prisma.DiscoveredZoneOmit
   eventLog?: Prisma.EventLogOmit
+  narrativeEvent?: Prisma.NarrativeEventOmit
 }
 
 /* Types for Logging */

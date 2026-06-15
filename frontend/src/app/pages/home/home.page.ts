@@ -14,7 +14,7 @@ type BackendStatus = 'checking' | 'connected' | 'offline';
 })
 export class HomePage implements OnInit {
   protected readonly backendStatus = signal<BackendStatus>('checking');
-  protected readonly backendMessage = signal('Comprobando conexion con el backend...');
+  protected readonly backendMessage = signal('Comprobando conexión con el backend...');
   protected readonly isCreatingGame = signal(false);
   protected readonly createGameError = signal('');
   protected readonly selectedDifficulty = signal<GameDifficulty>('NORMAL');

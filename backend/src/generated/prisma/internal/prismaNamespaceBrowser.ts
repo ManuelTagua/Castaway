@@ -55,7 +55,8 @@ export const ModelName = {
   InventoryItem: 'InventoryItem',
   BuiltStructure: 'BuiltStructure',
   DiscoveredZone: 'DiscoveredZone',
-  EventLog: 'EventLog'
+  EventLog: 'EventLog',
+  NarrativeEvent: 'NarrativeEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -88,6 +89,12 @@ export const GameScalarFieldEnum = {
   actionsRemaining: 'actionsRemaining',
   isGameOver: 'isGameOver',
   isVictory: 'isVictory',
+  pendingDecisionEventKey: 'pendingDecisionEventKey',
+  poisonDaysRemaining: 'poisonDaysRemaining',
+  poisonDamagePerDay: 'poisonDamagePerDay',
+  endingType: 'endingType',
+  endingTitle: 'endingTitle',
+  radioSignalDays: 'radioSignalDays',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -140,6 +147,17 @@ export const EventLogScalarFieldEnum = {
 export type EventLogScalarFieldEnum = (typeof EventLogScalarFieldEnum)[keyof typeof EventLogScalarFieldEnum]
 
 
+export const NarrativeEventScalarFieldEnum = {
+  id: 'id',
+  gameId: 'gameId',
+  eventKey: 'eventKey',
+  occurredAt: 'occurredAt',
+  day: 'day'
+} as const
+
+export type NarrativeEventScalarFieldEnum = (typeof NarrativeEventScalarFieldEnum)[keyof typeof NarrativeEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -154,4 +172,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

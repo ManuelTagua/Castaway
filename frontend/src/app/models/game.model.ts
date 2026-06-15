@@ -10,7 +10,11 @@ export interface InventoryItem {
     | 'RAW_FISH'
     | 'COOKED_FISH'
     | 'COCONUT'
-    | 'DIRTY_WATER';
+    | 'DIRTY_WATER'
+    | 'ANTIDOTE'
+    | 'FIRST_AID_KIT'
+    | 'BROKEN_RADIO'
+    | 'RADIO_PARTS';
   quantity: number;
   createdAt: string;
   updatedAt: string;
@@ -30,7 +34,10 @@ export interface BuiltStructure {
     | 'LEAF_BASKET'
     | 'WATER_FILTER'
     | 'IMPROVED_SHELTER'
-    | 'LARGE_WATER_COLLECTOR';
+    | 'LARGE_WATER_COLLECTOR'
+    | 'IMPROVISED_RAFT'
+    | 'REPAIRED_RADIO'
+    | 'SIGNAL_MIRROR';
   createdAt: string;
   updatedAt: string;
 }
@@ -55,7 +62,8 @@ export type EventLogType =
   | 'SURVIVAL'
   | 'RESCUE'
   | 'GAME_OVER'
-  | 'VICTORY';
+  | 'VICTORY'
+  | 'NARRATIVE';
 
 export interface EventLog {
   id: string;
@@ -80,10 +88,25 @@ export interface Game {
   actionsRemaining: number;
   isGameOver: boolean;
   isVictory: boolean;
+  pendingDecisionEventKey: string | null;
+  poisonDaysRemaining: number;
+  poisonDamagePerDay: number;
+  endingType: string | null;
+  endingTitle: string | null;
+  radioSignalDays: number;
   createdAt: string;
   updatedAt: string;
   inventoryItems: InventoryItem[];
   builtStructures: BuiltStructure[];
   discoveredZones: DiscoveredZone[];
+  narrativeEvents: NarrativeEvent[];
   eventLogs: EventLog[];
+}
+
+export interface NarrativeEvent {
+  id: string;
+  gameId: string;
+  eventKey: string;
+  occurredAt: string;
+  day: number;
 }

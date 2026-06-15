@@ -10,6 +10,10 @@ export const resourceTypes = [
   'COOKED_FISH',
   'COCONUT',
   'DIRTY_WATER',
+  'ANTIDOTE',
+  'FIRST_AID_KIT',
+  'BROKEN_RADIO',
+  'RADIO_PARTS',
 ] as const;
 export const gameDifficulties = ['EASY', 'NORMAL', 'HARD'] as const;
 
@@ -40,6 +44,11 @@ export const gameDetailsInclude = {
         createdAt: 'desc' as const,
       },
     ],
+  },
+  narrativeEvents: {
+    orderBy: {
+      occurredAt: 'asc' as const,
+    },
   },
 };
 

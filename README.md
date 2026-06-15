@@ -2,7 +2,7 @@
 
 Juego web de supervivencia en una isla desierta.
 
-## Tecnologias
+## Tecnologías
 
 - Frontend: Angular, TypeScript, SCSS
 - Backend: Node.js, Express, TypeScript
@@ -38,7 +38,7 @@ npm start
 
 Angular queda disponible en `http://localhost:4200`.
 
-En PowerShell, si la politica de ejecucion bloquea `npm`, usa `npm.cmd` en los mismos comandos.
+En PowerShell, si la política de ejecución bloquea `npm`, usa `npm.cmd` en los mismos comandos.
 
 ## Variables de entorno
 
@@ -50,4 +50,4 @@ DATABASE_URL="postgresql://postgres:root@localhost:5432/castaway_db?schema=publi
 FRONTEND_URL="http://localhost:4200,http://127.0.0.1:4200"
 ```
 
-Asegurate de que `DATABASE_URL` apunte a una base PostgreSQL existente y con credenciales validas antes de ejecutar `npm run prisma:migrate`.
+Asegúrate de que `DATABASE_URL` apunte a una base PostgreSQL existente y con credenciales válidas antes de ejecutar `npm run prisma:migrate`.

@@ -35,6 +35,9 @@ export type GameAvgAggregateOutputType = {
   sanity: number | null
   rescueProgress: number | null
   actionsRemaining: number | null
+  poisonDaysRemaining: number | null
+  poisonDamagePerDay: number | null
+  radioSignalDays: number | null
 }
 
 export type GameSumAggregateOutputType = {
@@ -46,6 +49,9 @@ export type GameSumAggregateOutputType = {
   sanity: number | null
   rescueProgress: number | null
   actionsRemaining: number | null
+  poisonDaysRemaining: number | null
+  poisonDamagePerDay: number | null
+  radioSignalDays: number | null
 }
 
 export type GameMinAggregateOutputType = {
@@ -62,6 +68,12 @@ export type GameMinAggregateOutputType = {
   actionsRemaining: number | null
   isGameOver: boolean | null
   isVictory: boolean | null
+  pendingDecisionEventKey: string | null
+  poisonDaysRemaining: number | null
+  poisonDamagePerDay: number | null
+  endingType: string | null
+  endingTitle: string | null
+  radioSignalDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +92,12 @@ export type GameMaxAggregateOutputType = {
   actionsRemaining: number | null
   isGameOver: boolean | null
   isVictory: boolean | null
+  pendingDecisionEventKey: string | null
+  poisonDaysRemaining: number | null
+  poisonDamagePerDay: number | null
+  endingType: string | null
+  endingTitle: string | null
+  radioSignalDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -98,6 +116,12 @@ export type GameCountAggregateOutputType = {
   actionsRemaining: number
   isGameOver: number
   isVictory: number
+  pendingDecisionEventKey: number
+  poisonDaysRemaining: number
+  poisonDamagePerDay: number
+  endingType: number
+  endingTitle: number
+  radioSignalDays: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -113,6 +137,9 @@ export type GameAvgAggregateInputType = {
   sanity?: true
   rescueProgress?: true
   actionsRemaining?: true
+  poisonDaysRemaining?: true
+  poisonDamagePerDay?: true
+  radioSignalDays?: true
 }
 
 export type GameSumAggregateInputType = {
@@ -124,6 +151,9 @@ export type GameSumAggregateInputType = {
   sanity?: true
   rescueProgress?: true
   actionsRemaining?: true
+  poisonDaysRemaining?: true
+  poisonDamagePerDay?: true
+  radioSignalDays?: true
 }
 
 export type GameMinAggregateInputType = {
@@ -140,6 +170,12 @@ export type GameMinAggregateInputType = {
   actionsRemaining?: true
   isGameOver?: true
   isVictory?: true
+  pendingDecisionEventKey?: true
+  poisonDaysRemaining?: true
+  poisonDamagePerDay?: true
+  endingType?: true
+  endingTitle?: true
+  radioSignalDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -158,6 +194,12 @@ export type GameMaxAggregateInputType = {
   actionsRemaining?: true
   isGameOver?: true
   isVictory?: true
+  pendingDecisionEventKey?: true
+  poisonDaysRemaining?: true
+  poisonDamagePerDay?: true
+  endingType?: true
+  endingTitle?: true
+  radioSignalDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -176,6 +218,12 @@ export type GameCountAggregateInputType = {
   actionsRemaining?: true
   isGameOver?: true
   isVictory?: true
+  pendingDecisionEventKey?: true
+  poisonDaysRemaining?: true
+  poisonDamagePerDay?: true
+  endingType?: true
+  endingTitle?: true
+  radioSignalDays?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -281,6 +329,12 @@ export type GameGroupByOutputType = {
   actionsRemaining: number
   isGameOver: boolean
   isVictory: boolean
+  pendingDecisionEventKey: string | null
+  poisonDaysRemaining: number
+  poisonDamagePerDay: number
+  endingType: string | null
+  endingTitle: string | null
+  radioSignalDays: number
   createdAt: Date
   updatedAt: Date
   _count: GameCountAggregateOutputType | null
@@ -322,12 +376,19 @@ export type GameWhereInput = {
   actionsRemaining?: Prisma.IntFilter<"Game"> | number
   isGameOver?: Prisma.BoolFilter<"Game"> | boolean
   isVictory?: Prisma.BoolFilter<"Game"> | boolean
+  pendingDecisionEventKey?: Prisma.StringNullableFilter<"Game"> | string | null
+  poisonDaysRemaining?: Prisma.IntFilter<"Game"> | number
+  poisonDamagePerDay?: Prisma.IntFilter<"Game"> | number
+  endingType?: Prisma.StringNullableFilter<"Game"> | string | null
+  endingTitle?: Prisma.StringNullableFilter<"Game"> | string | null
+  radioSignalDays?: Prisma.IntFilter<"Game"> | number
   createdAt?: Prisma.DateTimeFilter<"Game"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Game"> | Date | string
   inventoryItems?: Prisma.InventoryItemListRelationFilter
   builtStructures?: Prisma.BuiltStructureListRelationFilter
   discoveredZones?: Prisma.DiscoveredZoneListRelationFilter
   eventLogs?: Prisma.EventLogListRelationFilter
+  narrativeEvents?: Prisma.NarrativeEventListRelationFilter
 }
 
 export type GameOrderByWithRelationInput = {
@@ -344,12 +405,19 @@ export type GameOrderByWithRelationInput = {
   actionsRemaining?: Prisma.SortOrder
   isGameOver?: Prisma.SortOrder
   isVictory?: Prisma.SortOrder
+  pendingDecisionEventKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  endingType?: Prisma.SortOrderInput | Prisma.SortOrder
+  endingTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   inventoryItems?: Prisma.InventoryItemOrderByRelationAggregateInput
   builtStructures?: Prisma.BuiltStructureOrderByRelationAggregateInput
   discoveredZones?: Prisma.DiscoveredZoneOrderByRelationAggregateInput
   eventLogs?: Prisma.EventLogOrderByRelationAggregateInput
+  narrativeEvents?: Prisma.NarrativeEventOrderByRelationAggregateInput
 }
 
 export type GameWhereUniqueInput = Prisma.AtLeast<{
@@ -369,12 +437,19 @@ export type GameWhereUniqueInput = Prisma.AtLeast<{
   actionsRemaining?: Prisma.IntFilter<"Game"> | number
   isGameOver?: Prisma.BoolFilter<"Game"> | boolean
   isVictory?: Prisma.BoolFilter<"Game"> | boolean
+  pendingDecisionEventKey?: Prisma.StringNullableFilter<"Game"> | string | null
+  poisonDaysRemaining?: Prisma.IntFilter<"Game"> | number
+  poisonDamagePerDay?: Prisma.IntFilter<"Game"> | number
+  endingType?: Prisma.StringNullableFilter<"Game"> | string | null
+  endingTitle?: Prisma.StringNullableFilter<"Game"> | string | null
+  radioSignalDays?: Prisma.IntFilter<"Game"> | number
   createdAt?: Prisma.DateTimeFilter<"Game"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Game"> | Date | string
   inventoryItems?: Prisma.InventoryItemListRelationFilter
   builtStructures?: Prisma.BuiltStructureListRelationFilter
   discoveredZones?: Prisma.DiscoveredZoneListRelationFilter
   eventLogs?: Prisma.EventLogListRelationFilter
+  narrativeEvents?: Prisma.NarrativeEventListRelationFilter
 }, "id">
 
 export type GameOrderByWithAggregationInput = {
@@ -391,6 +466,12 @@ export type GameOrderByWithAggregationInput = {
   actionsRemaining?: Prisma.SortOrder
   isGameOver?: Prisma.SortOrder
   isVictory?: Prisma.SortOrder
+  pendingDecisionEventKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  endingType?: Prisma.SortOrderInput | Prisma.SortOrder
+  endingTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.GameCountOrderByAggregateInput
@@ -417,6 +498,12 @@ export type GameScalarWhereWithAggregatesInput = {
   actionsRemaining?: Prisma.IntWithAggregatesFilter<"Game"> | number
   isGameOver?: Prisma.BoolWithAggregatesFilter<"Game"> | boolean
   isVictory?: Prisma.BoolWithAggregatesFilter<"Game"> | boolean
+  pendingDecisionEventKey?: Prisma.StringNullableWithAggregatesFilter<"Game"> | string | null
+  poisonDaysRemaining?: Prisma.IntWithAggregatesFilter<"Game"> | number
+  poisonDamagePerDay?: Prisma.IntWithAggregatesFilter<"Game"> | number
+  endingType?: Prisma.StringNullableWithAggregatesFilter<"Game"> | string | null
+  endingTitle?: Prisma.StringNullableWithAggregatesFilter<"Game"> | string | null
+  radioSignalDays?: Prisma.IntWithAggregatesFilter<"Game"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Game"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Game"> | Date | string
 }
@@ -435,12 +522,19 @@ export type GameCreateInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventCreateNestedManyWithoutGameInput
 }
 
 export type GameUncheckedCreateInput = {
@@ -457,12 +551,19 @@ export type GameUncheckedCreateInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureUncheckedCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogUncheckedCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedCreateNestedManyWithoutGameInput
 }
 
 export type GameUpdateInput = {
@@ -479,12 +580,19 @@ export type GameUpdateInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUpdateManyWithoutGameNestedInput
 }
 
 export type GameUncheckedUpdateInput = {
@@ -501,12 +609,19 @@ export type GameUncheckedUpdateInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUncheckedUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUncheckedUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedUpdateManyWithoutGameNestedInput
 }
 
 export type GameCreateManyInput = {
@@ -523,6 +638,12 @@ export type GameCreateManyInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -541,6 +662,12 @@ export type GameUpdateManyMutationInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -559,6 +686,12 @@ export type GameUncheckedUpdateManyInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -577,6 +710,12 @@ export type GameCountOrderByAggregateInput = {
   actionsRemaining?: Prisma.SortOrder
   isGameOver?: Prisma.SortOrder
   isVictory?: Prisma.SortOrder
+  pendingDecisionEventKey?: Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  endingType?: Prisma.SortOrder
+  endingTitle?: Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -590,6 +729,9 @@ export type GameAvgOrderByAggregateInput = {
   sanity?: Prisma.SortOrder
   rescueProgress?: Prisma.SortOrder
   actionsRemaining?: Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
 }
 
 export type GameMaxOrderByAggregateInput = {
@@ -606,6 +748,12 @@ export type GameMaxOrderByAggregateInput = {
   actionsRemaining?: Prisma.SortOrder
   isGameOver?: Prisma.SortOrder
   isVictory?: Prisma.SortOrder
+  pendingDecisionEventKey?: Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  endingType?: Prisma.SortOrder
+  endingTitle?: Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -624,6 +772,12 @@ export type GameMinOrderByAggregateInput = {
   actionsRemaining?: Prisma.SortOrder
   isGameOver?: Prisma.SortOrder
   isVictory?: Prisma.SortOrder
+  pendingDecisionEventKey?: Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  endingType?: Prisma.SortOrder
+  endingTitle?: Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -637,6 +791,9 @@ export type GameSumOrderByAggregateInput = {
   sanity?: Prisma.SortOrder
   rescueProgress?: Prisma.SortOrder
   actionsRemaining?: Prisma.SortOrder
+  poisonDaysRemaining?: Prisma.SortOrder
+  poisonDamagePerDay?: Prisma.SortOrder
+  radioSignalDays?: Prisma.SortOrder
 }
 
 export type GameScalarRelationFilter = {
@@ -658,6 +815,10 @@ export type IntFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -720,6 +881,20 @@ export type GameUpdateOneRequiredWithoutEventLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GameUpdateToOneWithWhereWithoutEventLogsInput, Prisma.GameUpdateWithoutEventLogsInput>, Prisma.GameUncheckedUpdateWithoutEventLogsInput>
 }
 
+export type GameCreateNestedOneWithoutNarrativeEventsInput = {
+  create?: Prisma.XOR<Prisma.GameCreateWithoutNarrativeEventsInput, Prisma.GameUncheckedCreateWithoutNarrativeEventsInput>
+  connectOrCreate?: Prisma.GameCreateOrConnectWithoutNarrativeEventsInput
+  connect?: Prisma.GameWhereUniqueInput
+}
+
+export type GameUpdateOneRequiredWithoutNarrativeEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.GameCreateWithoutNarrativeEventsInput, Prisma.GameUncheckedCreateWithoutNarrativeEventsInput>
+  connectOrCreate?: Prisma.GameCreateOrConnectWithoutNarrativeEventsInput
+  upsert?: Prisma.GameUpsertWithoutNarrativeEventsInput
+  connect?: Prisma.GameWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GameUpdateToOneWithWhereWithoutNarrativeEventsInput, Prisma.GameUpdateWithoutNarrativeEventsInput>, Prisma.GameUncheckedUpdateWithoutNarrativeEventsInput>
+}
+
 export type GameCreateWithoutInventoryItemsInput = {
   id?: string
   day?: number
@@ -734,11 +909,18 @@ export type GameCreateWithoutInventoryItemsInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   builtStructures?: Prisma.BuiltStructureCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventCreateNestedManyWithoutGameInput
 }
 
 export type GameUncheckedCreateWithoutInventoryItemsInput = {
@@ -755,11 +937,18 @@ export type GameUncheckedCreateWithoutInventoryItemsInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   builtStructures?: Prisma.BuiltStructureUncheckedCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogUncheckedCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedCreateNestedManyWithoutGameInput
 }
 
 export type GameCreateOrConnectWithoutInventoryItemsInput = {
@@ -792,11 +981,18 @@ export type GameUpdateWithoutInventoryItemsInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   builtStructures?: Prisma.BuiltStructureUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUpdateManyWithoutGameNestedInput
 }
 
 export type GameUncheckedUpdateWithoutInventoryItemsInput = {
@@ -813,11 +1009,18 @@ export type GameUncheckedUpdateWithoutInventoryItemsInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   builtStructures?: Prisma.BuiltStructureUncheckedUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUncheckedUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedUpdateManyWithoutGameNestedInput
 }
 
 export type GameCreateWithoutBuiltStructuresInput = {
@@ -834,11 +1037,18 @@ export type GameCreateWithoutBuiltStructuresInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventCreateNestedManyWithoutGameInput
 }
 
 export type GameUncheckedCreateWithoutBuiltStructuresInput = {
@@ -855,11 +1065,18 @@ export type GameUncheckedCreateWithoutBuiltStructuresInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogUncheckedCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedCreateNestedManyWithoutGameInput
 }
 
 export type GameCreateOrConnectWithoutBuiltStructuresInput = {
@@ -892,11 +1109,18 @@ export type GameUpdateWithoutBuiltStructuresInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUpdateManyWithoutGameNestedInput
 }
 
 export type GameUncheckedUpdateWithoutBuiltStructuresInput = {
@@ -913,11 +1137,18 @@ export type GameUncheckedUpdateWithoutBuiltStructuresInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUncheckedUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedUpdateManyWithoutGameNestedInput
 }
 
 export type GameCreateWithoutDiscoveredZonesInput = {
@@ -934,11 +1165,18 @@ export type GameCreateWithoutDiscoveredZonesInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventCreateNestedManyWithoutGameInput
 }
 
 export type GameUncheckedCreateWithoutDiscoveredZonesInput = {
@@ -955,11 +1193,18 @@ export type GameUncheckedCreateWithoutDiscoveredZonesInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureUncheckedCreateNestedManyWithoutGameInput
   eventLogs?: Prisma.EventLogUncheckedCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedCreateNestedManyWithoutGameInput
 }
 
 export type GameCreateOrConnectWithoutDiscoveredZonesInput = {
@@ -992,11 +1237,18 @@ export type GameUpdateWithoutDiscoveredZonesInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUpdateManyWithoutGameNestedInput
 }
 
 export type GameUncheckedUpdateWithoutDiscoveredZonesInput = {
@@ -1013,11 +1265,18 @@ export type GameUncheckedUpdateWithoutDiscoveredZonesInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUncheckedUpdateManyWithoutGameNestedInput
   eventLogs?: Prisma.EventLogUncheckedUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedUpdateManyWithoutGameNestedInput
 }
 
 export type GameCreateWithoutEventLogsInput = {
@@ -1034,11 +1293,18 @@ export type GameCreateWithoutEventLogsInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventCreateNestedManyWithoutGameInput
 }
 
 export type GameUncheckedCreateWithoutEventLogsInput = {
@@ -1055,11 +1321,18 @@ export type GameUncheckedCreateWithoutEventLogsInput = {
   actionsRemaining?: number
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutGameInput
   builtStructures?: Prisma.BuiltStructureUncheckedCreateNestedManyWithoutGameInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedCreateNestedManyWithoutGameInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedCreateNestedManyWithoutGameInput
 }
 
 export type GameCreateOrConnectWithoutEventLogsInput = {
@@ -1092,11 +1365,18 @@ export type GameUpdateWithoutEventLogsInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUpdateManyWithoutGameNestedInput
 }
 
 export type GameUncheckedUpdateWithoutEventLogsInput = {
@@ -1113,11 +1393,146 @@ export type GameUncheckedUpdateWithoutEventLogsInput = {
   actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
   isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutGameNestedInput
   builtStructures?: Prisma.BuiltStructureUncheckedUpdateManyWithoutGameNestedInput
   discoveredZones?: Prisma.DiscoveredZoneUncheckedUpdateManyWithoutGameNestedInput
+  narrativeEvents?: Prisma.NarrativeEventUncheckedUpdateManyWithoutGameNestedInput
+}
+
+export type GameCreateWithoutNarrativeEventsInput = {
+  id?: string
+  day?: number
+  health?: number
+  hunger?: number
+  thirst?: number
+  energy?: number
+  sanity?: number
+  weather?: string
+  difficulty?: string
+  rescueProgress?: number
+  actionsRemaining?: number
+  isGameOver?: boolean
+  isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutGameInput
+  builtStructures?: Prisma.BuiltStructureCreateNestedManyWithoutGameInput
+  discoveredZones?: Prisma.DiscoveredZoneCreateNestedManyWithoutGameInput
+  eventLogs?: Prisma.EventLogCreateNestedManyWithoutGameInput
+}
+
+export type GameUncheckedCreateWithoutNarrativeEventsInput = {
+  id?: string
+  day?: number
+  health?: number
+  hunger?: number
+  thirst?: number
+  energy?: number
+  sanity?: number
+  weather?: string
+  difficulty?: string
+  rescueProgress?: number
+  actionsRemaining?: number
+  isGameOver?: boolean
+  isVictory?: boolean
+  pendingDecisionEventKey?: string | null
+  poisonDaysRemaining?: number
+  poisonDamagePerDay?: number
+  endingType?: string | null
+  endingTitle?: string | null
+  radioSignalDays?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutGameInput
+  builtStructures?: Prisma.BuiltStructureUncheckedCreateNestedManyWithoutGameInput
+  discoveredZones?: Prisma.DiscoveredZoneUncheckedCreateNestedManyWithoutGameInput
+  eventLogs?: Prisma.EventLogUncheckedCreateNestedManyWithoutGameInput
+}
+
+export type GameCreateOrConnectWithoutNarrativeEventsInput = {
+  where: Prisma.GameWhereUniqueInput
+  create: Prisma.XOR<Prisma.GameCreateWithoutNarrativeEventsInput, Prisma.GameUncheckedCreateWithoutNarrativeEventsInput>
+}
+
+export type GameUpsertWithoutNarrativeEventsInput = {
+  update: Prisma.XOR<Prisma.GameUpdateWithoutNarrativeEventsInput, Prisma.GameUncheckedUpdateWithoutNarrativeEventsInput>
+  create: Prisma.XOR<Prisma.GameCreateWithoutNarrativeEventsInput, Prisma.GameUncheckedCreateWithoutNarrativeEventsInput>
+  where?: Prisma.GameWhereInput
+}
+
+export type GameUpdateToOneWithWhereWithoutNarrativeEventsInput = {
+  where?: Prisma.GameWhereInput
+  data: Prisma.XOR<Prisma.GameUpdateWithoutNarrativeEventsInput, Prisma.GameUncheckedUpdateWithoutNarrativeEventsInput>
+}
+
+export type GameUpdateWithoutNarrativeEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  day?: Prisma.IntFieldUpdateOperationsInput | number
+  health?: Prisma.IntFieldUpdateOperationsInput | number
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  thirst?: Prisma.IntFieldUpdateOperationsInput | number
+  energy?: Prisma.IntFieldUpdateOperationsInput | number
+  sanity?: Prisma.IntFieldUpdateOperationsInput | number
+  weather?: Prisma.StringFieldUpdateOperationsInput | string
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  rescueProgress?: Prisma.IntFieldUpdateOperationsInput | number
+  actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutGameNestedInput
+  builtStructures?: Prisma.BuiltStructureUpdateManyWithoutGameNestedInput
+  discoveredZones?: Prisma.DiscoveredZoneUpdateManyWithoutGameNestedInput
+  eventLogs?: Prisma.EventLogUpdateManyWithoutGameNestedInput
+}
+
+export type GameUncheckedUpdateWithoutNarrativeEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  day?: Prisma.IntFieldUpdateOperationsInput | number
+  health?: Prisma.IntFieldUpdateOperationsInput | number
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  thirst?: Prisma.IntFieldUpdateOperationsInput | number
+  energy?: Prisma.IntFieldUpdateOperationsInput | number
+  sanity?: Prisma.IntFieldUpdateOperationsInput | number
+  weather?: Prisma.StringFieldUpdateOperationsInput | string
+  difficulty?: Prisma.StringFieldUpdateOperationsInput | string
+  rescueProgress?: Prisma.IntFieldUpdateOperationsInput | number
+  actionsRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  isGameOver?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVictory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pendingDecisionEventKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poisonDaysRemaining?: Prisma.IntFieldUpdateOperationsInput | number
+  poisonDamagePerDay?: Prisma.IntFieldUpdateOperationsInput | number
+  endingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endingTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  radioSignalDays?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutGameNestedInput
+  builtStructures?: Prisma.BuiltStructureUncheckedUpdateManyWithoutGameNestedInput
+  discoveredZones?: Prisma.DiscoveredZoneUncheckedUpdateManyWithoutGameNestedInput
+  eventLogs?: Prisma.EventLogUncheckedUpdateManyWithoutGameNestedInput
 }
 
 
@@ -1130,6 +1545,7 @@ export type GameCountOutputType = {
   builtStructures: number
   discoveredZones: number
   eventLogs: number
+  narrativeEvents: number
 }
 
 export type GameCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1137,6 +1553,7 @@ export type GameCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   builtStructures?: boolean | GameCountOutputTypeCountBuiltStructuresArgs
   discoveredZones?: boolean | GameCountOutputTypeCountDiscoveredZonesArgs
   eventLogs?: boolean | GameCountOutputTypeCountEventLogsArgs
+  narrativeEvents?: boolean | GameCountOutputTypeCountNarrativeEventsArgs
 }
 
 /**
@@ -1177,6 +1594,13 @@ export type GameCountOutputTypeCountEventLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.EventLogWhereInput
 }
 
+/**
+ * GameCountOutputType without action
+ */
+export type GameCountOutputTypeCountNarrativeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NarrativeEventWhereInput
+}
+
 
 export type GameSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1192,12 +1616,19 @@ export type GameSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   actionsRemaining?: boolean
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: boolean
+  poisonDaysRemaining?: boolean
+  poisonDamagePerDay?: boolean
+  endingType?: boolean
+  endingTitle?: boolean
+  radioSignalDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   inventoryItems?: boolean | Prisma.Game$inventoryItemsArgs<ExtArgs>
   builtStructures?: boolean | Prisma.Game$builtStructuresArgs<ExtArgs>
   discoveredZones?: boolean | Prisma.Game$discoveredZonesArgs<ExtArgs>
   eventLogs?: boolean | Prisma.Game$eventLogsArgs<ExtArgs>
+  narrativeEvents?: boolean | Prisma.Game$narrativeEventsArgs<ExtArgs>
   _count?: boolean | Prisma.GameCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["game"]>
 
@@ -1215,6 +1646,12 @@ export type GameSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   actionsRemaining?: boolean
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: boolean
+  poisonDaysRemaining?: boolean
+  poisonDamagePerDay?: boolean
+  endingType?: boolean
+  endingTitle?: boolean
+  radioSignalDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["game"]>
@@ -1233,6 +1670,12 @@ export type GameSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   actionsRemaining?: boolean
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: boolean
+  poisonDaysRemaining?: boolean
+  poisonDamagePerDay?: boolean
+  endingType?: boolean
+  endingTitle?: boolean
+  radioSignalDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["game"]>
@@ -1251,16 +1694,23 @@ export type GameSelectScalar = {
   actionsRemaining?: boolean
   isGameOver?: boolean
   isVictory?: boolean
+  pendingDecisionEventKey?: boolean
+  poisonDaysRemaining?: boolean
+  poisonDamagePerDay?: boolean
+  endingType?: boolean
+  endingTitle?: boolean
+  radioSignalDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type GameOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "day" | "health" | "hunger" | "thirst" | "energy" | "sanity" | "weather" | "difficulty" | "rescueProgress" | "actionsRemaining" | "isGameOver" | "isVictory" | "createdAt" | "updatedAt", ExtArgs["result"]["game"]>
+export type GameOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "day" | "health" | "hunger" | "thirst" | "energy" | "sanity" | "weather" | "difficulty" | "rescueProgress" | "actionsRemaining" | "isGameOver" | "isVictory" | "pendingDecisionEventKey" | "poisonDaysRemaining" | "poisonDamagePerDay" | "endingType" | "endingTitle" | "radioSignalDays" | "createdAt" | "updatedAt", ExtArgs["result"]["game"]>
 export type GameInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   inventoryItems?: boolean | Prisma.Game$inventoryItemsArgs<ExtArgs>
   builtStructures?: boolean | Prisma.Game$builtStructuresArgs<ExtArgs>
   discoveredZones?: boolean | Prisma.Game$discoveredZonesArgs<ExtArgs>
   eventLogs?: boolean | Prisma.Game$eventLogsArgs<ExtArgs>
+  narrativeEvents?: boolean | Prisma.Game$narrativeEventsArgs<ExtArgs>
   _count?: boolean | Prisma.GameCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GameIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1273,6 +1723,7 @@ export type $GamePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     builtStructures: Prisma.$BuiltStructurePayload<ExtArgs>[]
     discoveredZones: Prisma.$DiscoveredZonePayload<ExtArgs>[]
     eventLogs: Prisma.$EventLogPayload<ExtArgs>[]
+    narrativeEvents: Prisma.$NarrativeEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1288,6 +1739,12 @@ export type $GamePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     actionsRemaining: number
     isGameOver: boolean
     isVictory: boolean
+    pendingDecisionEventKey: string | null
+    poisonDaysRemaining: number
+    poisonDamagePerDay: number
+    endingType: string | null
+    endingTitle: string | null
+    radioSignalDays: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["game"]>
@@ -1688,6 +2145,7 @@ export interface Prisma__GameClient<T, Null = never, ExtArgs extends runtime.Typ
   builtStructures<T extends Prisma.Game$builtStructuresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Game$builtStructuresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuiltStructurePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   discoveredZones<T extends Prisma.Game$discoveredZonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Game$discoveredZonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiscoveredZonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   eventLogs<T extends Prisma.Game$eventLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Game$eventLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  narrativeEvents<T extends Prisma.Game$narrativeEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Game$narrativeEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NarrativeEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1730,6 +2188,12 @@ export interface GameFieldRefs {
   readonly actionsRemaining: Prisma.FieldRef<"Game", 'Int'>
   readonly isGameOver: Prisma.FieldRef<"Game", 'Boolean'>
   readonly isVictory: Prisma.FieldRef<"Game", 'Boolean'>
+  readonly pendingDecisionEventKey: Prisma.FieldRef<"Game", 'String'>
+  readonly poisonDaysRemaining: Prisma.FieldRef<"Game", 'Int'>
+  readonly poisonDamagePerDay: Prisma.FieldRef<"Game", 'Int'>
+  readonly endingType: Prisma.FieldRef<"Game", 'String'>
+  readonly endingTitle: Prisma.FieldRef<"Game", 'String'>
+  readonly radioSignalDays: Prisma.FieldRef<"Game", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Game", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Game", 'DateTime'>
 }
@@ -2218,6 +2682,30 @@ export type Game$eventLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.EventLogScalarFieldEnum | Prisma.EventLogScalarFieldEnum[]
+}
+
+/**
+ * Game.narrativeEvents
+ */
+export type Game$narrativeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NarrativeEvent
+   */
+  select?: Prisma.NarrativeEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NarrativeEvent
+   */
+  omit?: Prisma.NarrativeEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NarrativeEventInclude<ExtArgs> | null
+  where?: Prisma.NarrativeEventWhereInput
+  orderBy?: Prisma.NarrativeEventOrderByWithRelationInput | Prisma.NarrativeEventOrderByWithRelationInput[]
+  cursor?: Prisma.NarrativeEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NarrativeEventScalarFieldEnum | Prisma.NarrativeEventScalarFieldEnum[]
 }
 
 /**

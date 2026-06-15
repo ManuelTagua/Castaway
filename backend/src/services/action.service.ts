@@ -1,7 +1,26 @@
 import { prisma } from '../prisma/client.js';
 import { gameDetailsInclude } from './game.service.js';
+import {
+  maybeRollNarrativeEvent,
+  maybeRollDecisionEvent,
+  persistNarrativeEvent,
+  persistPendingDecisionEvent,
+  applyPositiveResource,
+  applyNarrativeRegularStatDelta,
+  rollExplorationAntidote,
+  NarrativeEventResult,
+  decisionEvents,
+} from './narrative-event.service.js';
 
-export const allowedActions = ['FORAGE', 'SEARCH_WATER', 'REST', 'EXPLORE', 'FISH'] as const;
+export const allowedActions = [
+  'FORAGE',
+  'SEARCH_WATER',
+  'REST',
+  'EXPLORE',
+  'FISH',
+  'LEAVE_ISLAND',
+  'SEND_RADIO_SIGNAL',
+] as const;
 export const allowedExploreZones = ['BEACH', 'JUNGLE', 'CAVE', 'CLIFFS'] as const;
 
 export type GameAction = (typeof allowedActions)[number];
@@ -9,7 +28,17 @@ export type ExploreZone = (typeof allowedExploreZones)[number];
 type StatChanges = Partial<Record<'hunger' | 'thirst' | 'energy' | 'sanity', number>>;
 type ResourceChanges = Partial<
   Record<
-    'FOOD' | 'WATER' | 'WOOD' | 'STONE' | 'FIBER' | 'RAW_FISH' | 'COOKED_FISH' | 'COCONUT' | 'DIRTY_WATER',
+    | 'FOOD'
+    | 'WATER'
+    | 'WOOD'
+    | 'STONE'
+    | 'FIBER'
+    | 'RAW_FISH'
+    | 'COOKED_FISH'
+    | 'COCONUT'
+    | 'DIRTY_WATER'
+    | 'ANTIDOTE'
+    | 'FIRST_AID_KIT',
     number
   >
 >;
@@ -23,7 +52,10 @@ type StructureType =
   | 'LEAF_BASKET'
   | 'WATER_FILTER'
   | 'IMPROVED_SHELTER'
-  | 'LARGE_WATER_COLLECTOR';
+  | 'LARGE_WATER_COLLECTOR'
+  | 'IMPROVISED_RAFT'
+  | 'REPAIRED_RADIO'
+  | 'SIGNAL_MIRROR';
 type ZoneType = 'BEACH' | 'JUNGLE' | 'CAVE' | 'CLIFFS';
 type DiscoverableZone = Exclude<ZoneType, 'BEACH'>;
 type GameDifficulty = 'EASY' | 'NORMAL' | 'HARD';
@@ -37,7 +69,13 @@ interface ActionOutcome {
 }
 
 export type ActionResult =
-  | { status: 'performed'; game: unknown; message: string }
+  | {
+      status: 'performed';
+      game: unknown;
+      message: string;
+      eventMessages?: string[];
+      importantEvent?: { title: string; message: string };
+    }
   | { status: 'not_found' }
   | { status: 'game_over' }
   | { status: 'no_actions_remaining' }
@@ -83,6 +121,12 @@ const baseStatChanges: Record<GameAction, StatChanges> = {
     energy: -12,
     hunger: -4,
     thirst: -4,
+  },
+  LEAVE_ISLAND: {},
+  SEND_RADIO_SIGNAL: {
+    energy: -6,
+    hunger: -2,
+    thirst: -2,
   },
 };
 
@@ -130,6 +174,8 @@ function describeResources(resources: ResourceChanges) {
     COOKED_FISH: 'pescado cocinado',
     COCONUT: 'coco',
     DIRTY_WATER: 'agua no potable',
+    ANTIDOTE: 'cura',
+    FIRST_AID_KIT: 'botiquín',
   };
 
   return Object.entries(resources)
@@ -577,6 +623,8 @@ export async function performGameAction(
     include: {
       builtStructures: true,
       discoveredZones: true,
+      inventoryItems: true,
+      narrativeEvents: true,
     },
   });
 
@@ -601,18 +649,53 @@ export async function performGameAction(
     return { status: 'missing_tool' };
   }
 
+  if (action === 'LEAVE_ISLAND' && !hasStructure(structures, 'IMPROVISED_RAFT')) {
+    return { status: 'missing_tool' };
+  }
+
+  if (action === 'SEND_RADIO_SIGNAL' && !hasStructure(structures, 'REPAIRED_RADIO')) {
+    return { status: 'missing_tool' };
+  }
+
   const exploreZone = action === 'EXPLORE' ? zone ?? 'BEACH' : 'BEACH';
 
   if (action === 'EXPLORE' && !hasZone(zones, exploreZone)) {
     return { status: 'zone_not_discovered' };
   }
 
+  if (action === 'LEAVE_ISLAND') {
+    return attemptRaftEnding(gameId, game);
+  }
+
+  if (action === 'SEND_RADIO_SIGNAL') {
+    return sendRadioSignal(gameId, game);
+  }
+
   const difficulty = game.difficulty as GameDifficulty;
   const changes = getStatChanges(action, structures, difficulty);
   const outcome = rollAction(action, structures, zones, difficulty, exploreZone);
+  const decisionEvent =
+    action === 'EXPLORE' || action === 'FORAGE'
+      ? maybeRollDecisionEvent(game, action === 'EXPLORE' ? exploreZone : null)
+      : null;
+  const narrativeEvent = decisionEvent || game.pendingDecisionEventKey
+    ? null
+    : action === 'EXPLORE'
+      ? maybeRollNarrativeEvent(game, 'EXPLORE', exploreZone)
+      : action === 'FORAGE'
+        ? maybeRollNarrativeEvent(game, 'FORAGE')
+        : null;
+  const antidoteEvent = !decisionEvent && !narrativeEvent && action === 'EXPLORE'
+    ? rollExplorationAntidote(game)
+    : null;
 
   return prisma.$transaction(async (transaction) => {
     for (const [type, quantity] of Object.entries(outcome.resources)) {
+      if ((type === 'ANTIDOTE' || type === 'FIRST_AID_KIT') && quantity > 0) {
+        await applyPositiveResource(transaction, gameId, type, quantity);
+        continue;
+      }
+
       await transaction.inventoryItem.upsert({
         where: {
           gameId_type: {
@@ -653,6 +736,32 @@ export async function performGameAction(
       });
     }
 
+    if (narrativeEvent) {
+      await persistNarrativeEvent(transaction, gameId, game.day, narrativeEvent);
+    }
+
+    if (antidoteEvent) {
+      for (const [type, quantity] of Object.entries(antidoteEvent.resources)) {
+        await applyPositiveResource(transaction, gameId, type as 'ANTIDOTE', quantity);
+      }
+
+      await transaction.eventLog.create({
+        data: {
+          gameId,
+          day: game.day,
+          type: 'NARRATIVE',
+          message: antidoteEvent.message,
+        },
+      });
+    }
+
+    if (decisionEvent) {
+      await persistPendingDecisionEvent(transaction, gameId, game.day, decisionEvent);
+    }
+
+    const nextHealth = Math.max(0, game.health + (narrativeEvent?.healthDelta ?? 0));
+    const isGameOver = nextHealth <= 0;
+
     const updatedGame = await transaction.game.update({
       where: {
         id: gameId,
@@ -662,15 +771,147 @@ export async function performGameAction(
         hunger: clampStat(game.hunger + (changes.hunger ?? 0)),
         thirst: clampStat(game.thirst + (changes.thirst ?? 0)),
         energy: clampStat(game.energy + (changes.energy ?? 0)),
-        sanity: clampStat(game.sanity + (changes.sanity ?? 0)),
+        sanity: applyNarrativeRegularStatDelta(
+          clampStat(game.sanity + (changes.sanity ?? 0)),
+          narrativeEvent?.sanityDelta,
+        ),
+        health: nextHealth,
+        isGameOver,
+        pendingDecisionEventKey: decisionEvent ?? game.pendingDecisionEventKey,
       },
       include: gameDetailsInclude,
     });
 
+    const decisionMessage = decisionEvent ? decisionEvents[decisionEvent].message : null;
+    const eventMessages = [decisionMessage, narrativeEvent?.message, antidoteEvent?.message].filter(Boolean) as string[];
+
     return {
       status: 'performed',
       game: updatedGame,
-      message: outcome.message,
+      message: [outcome.message, decisionMessage, narrativeEvent?.message, antidoteEvent?.message].filter(Boolean).join(' '),
+      eventMessages: eventMessages.length > 0 ? eventMessages : undefined,
+      importantEvent: decisionEvent
+        ? { title: decisionEvents[decisionEvent].title, message: decisionEvents[decisionEvent].message }
+        : toImportantEvent(narrativeEvent),
     };
   });
+}
+
+function toImportantEvent(event: NarrativeEventResult | null) {
+  if (!event?.isSevere) {
+    return undefined;
+  }
+
+  return {
+    title: 'La isla se vuelve peligrosa',
+    message: event.message,
+  };
+}
+
+async function attemptRaftEnding(gameId: string, game: {
+  day: number;
+  health: number;
+  energy: number;
+  difficulty: string;
+  actionsRemaining: number;
+}) {
+  const successChance = Math.min(0.85, 0.38 + game.health / 300 + game.energy / 400);
+  const succeeds = Math.random() < successChance;
+  const deadlyFailure = !succeeds && Math.random() < 0.22;
+  const nextHealth = succeeds ? game.health : deadlyFailure ? 0 : Math.max(1, game.health - 35);
+  const message = succeeds
+    ? 'Has empujado la barca improvisada al mar y has logrado alcanzar tierra firme.'
+    : deadlyFailure
+      ? 'La barca se rompe mar adentro. No consigues volver a la isla.'
+      : 'La barca no resiste el oleaje. Vuelves a la costa muy herido y sin fuerzas.';
+
+  const updatedGame = await prisma.$transaction(async (transaction) => {
+    await transaction.eventLog.create({
+      data: {
+        gameId,
+        day: game.day,
+        type: succeeds ? 'VICTORY' : deadlyFailure ? 'GAME_OVER' : 'SURVIVAL',
+        message,
+      },
+    });
+
+    return transaction.game.update({
+      where: { id: gameId },
+      data: {
+        actionsRemaining: 0,
+        health: nextHealth,
+        energy: succeeds ? game.energy : 0,
+        isVictory: succeeds,
+        isGameOver: deadlyFailure,
+        endingType: succeeds ? 'RAFT_ESCAPE' : null,
+        endingTitle: succeeds ? 'Barca improvisada' : null,
+      },
+      include: gameDetailsInclude,
+    });
+  });
+
+  return {
+    status: 'performed' as const,
+    game: updatedGame,
+    message,
+    eventMessages: [message],
+    importantEvent: {
+      title: succeeds ? 'Has alcanzado tierra firme' : deadlyFailure ? 'La barca no resistió' : 'Intento fallido',
+      message,
+    },
+  };
+}
+
+async function sendRadioSignal(gameId: string, game: {
+  day: number;
+  radioSignalDays: number;
+  actionsRemaining: number;
+  hunger: number;
+  thirst: number;
+  energy: number;
+}) {
+  const nextRadioSignalDays = game.radioSignalDays + 1;
+  const isVictory = nextRadioSignalDays >= 3;
+  const message = isVictory
+    ? 'La radio responde con una voz entrecortada. Han localizado tu posición y llega el rescate.'
+    : `Emites una señal de emergencia. Necesitas mantener la radio activa ${3 - nextRadioSignalDays} día(s) más.`;
+
+  const updatedGame = await prisma.$transaction(async (transaction) => {
+    await transaction.eventLog.create({
+      data: {
+        gameId,
+        day: game.day,
+        type: isVictory ? 'VICTORY' : 'RESCUE',
+        message,
+      },
+    });
+
+    return transaction.game.update({
+      where: { id: gameId },
+      data: {
+        actionsRemaining: game.actionsRemaining - 1,
+        hunger: clampStat(game.hunger - 2),
+        thirst: clampStat(game.thirst - 2),
+        energy: clampStat(game.energy - 6),
+        radioSignalDays: nextRadioSignalDays,
+        isVictory,
+        endingType: isVictory ? 'EMERGENCY_RADIO' : null,
+        endingTitle: isVictory ? 'Radio de emergencia' : null,
+      },
+      include: gameDetailsInclude,
+    });
+  });
+
+  return {
+    status: 'performed' as const,
+    game: updatedGame,
+    message,
+    eventMessages: [message],
+    importantEvent: isVictory
+      ? {
+          title: 'Radio de emergencia',
+          message,
+        }
+      : undefined,
+  };
 }
