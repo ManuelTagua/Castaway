@@ -149,8 +149,30 @@ Cada final tiene diferentes probabilidades y condiciones.
 
 ---
 
+## Objetivo del proyecto
+
+Este proyecto fue desarrollado como práctica de desarrollo frontend y diseño de sistemas de juego.
+
+El objetivo era crear una experiencia de supervivencia sencilla pero rejugable, incorporando:
+
+Gestión de recursos.
+Exploración.
+Eventos dinámicos.
+Construcción.
+Múltiples finales.
+Interfaz interactiva.
+# Autor
+
+Manuel Tagua Pérez
+
+---
+
 # Cómo ejecutar el proyecto
 
 ```bash
 npm install
 npm start
+
+Abrir:
+http://localhost:4200
+
