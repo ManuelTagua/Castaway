@@ -1,4 +1,4 @@
-import { Prisma } from '../generated/prisma/client.js';
+import { Prisma } from '@prisma/client';
 
 export type DecisionEventKey =
   | 'DECISION_ABANDONED_BACKPACK'
