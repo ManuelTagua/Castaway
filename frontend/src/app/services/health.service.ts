@@ -8,7 +8,7 @@ import { HealthResponse } from '../models/health-response.model';
   providedIn: 'root',
 })
 export class HealthService {
-  private readonly healthUrl = 'http://localhost:3000/api/health';
+  private readonly healthUrl = 'https://castaway-backend.onrender.com/api/health';
 
   constructor(private readonly http: HttpClient) {}
 

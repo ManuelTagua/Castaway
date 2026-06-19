@@ -59,7 +59,7 @@ export interface GameMutationResponse {
   providedIn: 'root',
 })
 export class GameService {
-  private readonly gamesUrl = 'http://localhost:3000/api/games';
+  private readonly gamesUrl = 'https://castaway-backend.onrender.com/api/games';
 
   constructor(private readonly http: HttpClient) {}
 
