@@ -4,6 +4,10 @@ Un videojuego de supervivencia desarrollado como proyecto de portfolio.
 
 El jugador despierta en una isla desconocida tras un accidente y deberá sobrevivir utilizando los recursos disponibles, explorando nuevas zonas, construyendo herramientas y encontrando una forma de escapar.
 
+## Demo
+
+https://castaway.manueltagua.com
+
 ---
 
 # Vista general
@@ -129,6 +133,8 @@ Cada final tiene diferentes probabilidades y condiciones.
 - CSS
 - Angular Signals
 - Angular Components
+- Vercel
+- Docker
 
 ---
 
